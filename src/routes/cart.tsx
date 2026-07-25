@@ -32,7 +32,9 @@ function CartPage() {
           </div>
           <h1 className="text-2xl font-bold text-navy">سلتك فارغة</h1>
           <p className="text-muted-foreground mt-2 text-sm">أضف منتجات لتظهر هنا.</p>
-          <Link to="/products" className="btn-cyan mt-6 inline-flex">تصفح المنتجات</Link>
+          <Link to="/products" className="btn-cyan mt-6 inline-flex">
+            تصفح المنتجات
+          </Link>
         </div>
       </div>
     );
@@ -49,7 +51,11 @@ function CartPage() {
               key={`${it.productId}-${it.color}-${it.size}`}
               className="bg-white border border-border-subtle rounded-2xl p-4 flex gap-4"
             >
-              <img src={it.image} alt={it.name} className="h-28 w-28 rounded-xl object-cover flex-shrink-0" />
+              <img
+                src={it.image}
+                alt={it.name}
+                className="h-28 w-28 rounded-xl object-cover shrink-0"
+              />
               <div className="flex-1 min-w-0 flex flex-col">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -60,7 +66,9 @@ function CartPage() {
                     >
                       {it.name}
                     </Link>
-                    <p className="text-xs text-muted-foreground mt-1">{it.color} · {it.size}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {it.color} · {it.size}
+                    </p>
                   </div>
                   <button
                     onClick={() => removeItem(it.productId, it.color, it.size)}
@@ -73,29 +81,40 @@ function CartPage() {
                 <div className="flex items-center justify-between mt-auto pt-3">
                   <div className="inline-flex items-center bg-surface-alt rounded-lg">
                     <button
-                      onClick={() => updateQuantity(it.productId, it.color, it.size, it.quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(it.productId, it.color, it.size, it.quantity - 1)
+                      }
                       aria-label="نقص"
                       className="p-2 text-navy hover:text-cyan-brand"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <span className="px-3 font-semibold text-navy min-w-[2ch] text-center">{it.quantity}</span>
+                    <span className="px-3 font-semibold text-navy min-w-[2ch] text-center">
+                      {it.quantity}
+                    </span>
                     <button
-                      onClick={() => updateQuantity(it.productId, it.color, it.size, it.quantity + 1)}
+                      onClick={() =>
+                        updateQuantity(it.productId, it.color, it.size, it.quantity + 1)
+                      }
                       aria-label="زيادة"
                       className="p-2 text-navy hover:text-cyan-brand"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="text-navy font-bold text-lg">{formatPrice(it.price * it.quantity)}</div>
+                  <div className="text-navy font-bold text-lg">
+                    {formatPrice(it.price * it.quantity)}
+                  </div>
                 </div>
               </div>
             </div>
           ))}
 
           <div className="flex justify-between items-center pt-2">
-            <button onClick={clearCart} className="text-sm text-muted-foreground hover:text-destructive">
+            <button
+              onClick={clearCart}
+              className="text-sm text-muted-foreground hover:text-destructive"
+            >
               مسح السلة
             </button>
             <Link to="/products" className="text-sm text-cyan-brand hover:underline">
@@ -121,7 +140,9 @@ function CartPage() {
               <span>{formatPrice(total)}</span>
             </div>
           </div>
-          <Link to="/checkout" className="btn-cyan w-full">إتمام الطلب</Link>
+          <Link to="/checkout" className="btn-cyan w-full">
+            إتمام الطلب
+          </Link>
           <p className="text-xs text-muted-foreground text-center">دفع آمن عند الاستلام</p>
         </aside>
       </div>
