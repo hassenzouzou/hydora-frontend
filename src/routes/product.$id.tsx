@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Minus, Plus, ShoppingCart, Check, Shield, Truck, RotateCcw, Star } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Check, Shield, Truck, RotateCcw } from "lucide-react";
 import { mockProducts } from "@/lib/mock-data";
 import { formatPrice } from "@/lib/format";
 import { useCartStore } from "@/store/cart-store";
@@ -108,15 +108,6 @@ function ProductDetailPage() {
             {product.category}
           </span>
           <h1 className="text-2xl md:text-3xl font-extrabold text-navy mt-3">{product.name}</h1>
-
-          <div className="flex items-center gap-2 mt-3">
-            <div className="flex items-center gap-0.5 text-cyan-brand">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-4 w-4" fill={i < Math.round(product.rating) ? "currentColor" : "none"} />
-              ))}
-            </div>
-            <span className="text-sm text-muted-foreground">({product.rating.toFixed(1)})</span>
-          </div>
 
           <div className="mt-5 flex items-center gap-3">
             <span className="text-3xl font-extrabold text-navy">{formatPrice(product.price)}</span>

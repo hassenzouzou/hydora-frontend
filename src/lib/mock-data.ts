@@ -14,7 +14,6 @@ export type MockProduct = {
   description: string;
   price: number;
   is_available: boolean;
-  rating: number;
   image: string;
   category: string;
   categorySlug: string;
@@ -82,7 +81,6 @@ export const mockProducts: MockProduct[] = productNames.map((name, i) => ({
     "قارورة عالية الجودة، مصنوعة من ستانلس ستيل مزدوج الجدار. تحافظ على البرودة لمدة 24 ساعة والحرارة لمدة 12 ساعة. تصميم أنيق مقاوم للتسرب، مناسبة لجميع الاستخدامات اليومية والرياضية.",
   price: 1500 + i * 350,
   is_available: i !== 5,
-  rating: 4 + (i % 3) * 0.3,
   image: bottleImages[i % bottleImages.length],
   category: mockCategories[i % mockCategories.length].name,
   categorySlug: mockCategories[i % mockCategories.length].slug,

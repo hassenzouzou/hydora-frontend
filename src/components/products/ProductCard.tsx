@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart, Star } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import type { MockProduct } from "@/lib/mock-data";
 import { formatPrice } from "@/lib/format";
 import { useCartStore } from "@/store/cart-store";
@@ -61,16 +61,6 @@ export function ProductCard({ product }: { product: MockProduct }) {
         <h3 className="text-navy font-semibold text-[15px] line-clamp-2 leading-snug min-h-[42px]">
           {product.name}
         </h3>
-        <div className="flex items-center gap-1 text-cyan-brand">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              className="h-3.5 w-3.5"
-              fill={i < Math.round(product.rating) ? "currentColor" : "none"}
-            />
-          ))}
-          <span className="text-muted-foreground text-xs ms-1">({product.rating.toFixed(1)})</span>
-        </div>
         <div className="text-navy font-bold text-lg mt-auto">{formatPrice(product.price)}</div>
       </div>
 

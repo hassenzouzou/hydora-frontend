@@ -11,7 +11,7 @@ export function AnnouncementBar() {
         <span className="hidden sm:inline text-white/30">|</span>
         <span className="hidden sm:flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-cyan-brand" />
-          1009+ منتج أصلي
+          منتجات أصلية
         </span>
         <span className="hidden sm:inline text-white/30">|</span>
         <span className="hidden md:flex items-center gap-2">
