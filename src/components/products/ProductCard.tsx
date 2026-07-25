@@ -58,7 +58,7 @@ export function ProductCard({ product }: { product: MockProduct }) {
       </div>
 
       <div className="p-4 pb-14 flex flex-col gap-2 flex-1">
-        <h3 className="text-navy font-semibold text-[15px] line-clamp-2 leading-snug min-h-[42px]">
+        <h3 className="text-navy font-semibold text-[15px] line-clamp-2 leading-snug min-h-42px">
           {product.name}
         </h3>
         <div className="text-navy font-bold text-lg mt-auto">{formatPrice(product.price)}</div>
@@ -68,7 +68,7 @@ export function ProductCard({ product }: { product: MockProduct }) {
         onClick={handleQuickAdd}
         disabled={!product.is_available}
         aria-label="أضف للسلة"
-        className="absolute bottom-3 end-3 bg-cyan-brand hover:bg-cyan-dark disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-full p-2.5 shadow-lg transition-all hover:scale-110"
+        className="absolute bottom-3 inset-e-3 bg-cyan-brand hover:bg-cyan-dark disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-full p-2.5 shadow-lg transition-all hover:scale-110"
       >
         <ShoppingCart className="h-4 w-4" />
       </button>
