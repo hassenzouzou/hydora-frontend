@@ -1,0 +1,71 @@
+// 58 Algerian wilayas with home-delivery pricing (DZD).
+// Prices are indicative — adjust when the real Yalidine/ZR-Express feed is wired.
+
+export type Wilaya = {
+  code: number;
+  name: string;
+  nameFr: string;
+  homeDelivery: number;
+  stopDeskDelivery: number;
+};
+
+export const wilayas: Wilaya[] = [
+  { code: 1, name: "أدرار", nameFr: "Adrar", homeDelivery: 1400, stopDeskDelivery: 900 },
+  { code: 2, name: "الشلف", nameFr: "Chlef", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 3, name: "الأغواط", nameFr: "Laghouat", homeDelivery: 950, stopDeskDelivery: 550 },
+  { code: 4, name: "أم البواقي", nameFr: "Oum El Bouaghi", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 5, name: "باتنة", nameFr: "Batna", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 6, name: "بجاية", nameFr: "Béjaïa", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 7, name: "بسكرة", nameFr: "Biskra", homeDelivery: 950, stopDeskDelivery: 550 },
+  { code: 8, name: "بشار", nameFr: "Béchar", homeDelivery: 1100, stopDeskDelivery: 650 },
+  { code: 9, name: "البليدة", nameFr: "Blida", homeDelivery: 600, stopDeskDelivery: 400 },
+  { code: 10, name: "البويرة", nameFr: "Bouira", homeDelivery: 700, stopDeskDelivery: 450 },
+  { code: 11, name: "تمنراست", nameFr: "Tamanrasset", homeDelivery: 1600, stopDeskDelivery: 1000 },
+  { code: 12, name: "تبسة", nameFr: "Tébessa", homeDelivery: 900, stopDeskDelivery: 500 },
+  { code: 13, name: "تلمسان", nameFr: "Tlemcen", homeDelivery: 900, stopDeskDelivery: 500 },
+  { code: 14, name: "تيارت", nameFr: "Tiaret", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 15, name: "تيزي وزو", nameFr: "Tizi Ouzou", homeDelivery: 700, stopDeskDelivery: 450 },
+  { code: 16, name: "الجزائر", nameFr: "Alger", homeDelivery: 500, stopDeskDelivery: 350 },
+  { code: 17, name: "الجلفة", nameFr: "Djelfa", homeDelivery: 900, stopDeskDelivery: 500 },
+  { code: 18, name: "جيجل", nameFr: "Jijel", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 19, name: "سطيف", nameFr: "Sétif", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 20, name: "سعيدة", nameFr: "Saïda", homeDelivery: 900, stopDeskDelivery: 500 },
+  { code: 21, name: "سكيكدة", nameFr: "Skikda", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 22, name: "سيدي بلعباس", nameFr: "Sidi Bel Abbès", homeDelivery: 900, stopDeskDelivery: 500 },
+  { code: 23, name: "عنابة", nameFr: "Annaba", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 24, name: "قالمة", nameFr: "Guelma", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 25, name: "قسنطينة", nameFr: "Constantine", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 26, name: "المدية", nameFr: "Médéa", homeDelivery: 700, stopDeskDelivery: 450 },
+  { code: 27, name: "مستغانم", nameFr: "Mostaganem", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 28, name: "المسيلة", nameFr: "M'Sila", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 29, name: "معسكر", nameFr: "Mascara", homeDelivery: 900, stopDeskDelivery: 500 },
+  { code: 30, name: "ورقلة", nameFr: "Ouargla", homeDelivery: 1100, stopDeskDelivery: 650 },
+  { code: 31, name: "وهران", nameFr: "Oran", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 32, name: "البيض", nameFr: "El Bayadh", homeDelivery: 1050, stopDeskDelivery: 600 },
+  { code: 33, name: "إليزي", nameFr: "Illizi", homeDelivery: 1700, stopDeskDelivery: 1100 },
+  { code: 34, name: "برج بوعريريج", nameFr: "Bordj Bou Arréridj", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 35, name: "بومرداس", nameFr: "Boumerdès", homeDelivery: 600, stopDeskDelivery: 400 },
+  { code: 36, name: "الطارف", nameFr: "El Tarf", homeDelivery: 850, stopDeskDelivery: 500 },
+  { code: 37, name: "تندوف", nameFr: "Tindouf", homeDelivery: 1700, stopDeskDelivery: 1100 },
+  { code: 38, name: "تيسمسيلت", nameFr: "Tissemsilt", homeDelivery: 850, stopDeskDelivery: 500 },
+  { code: 39, name: "الوادي", nameFr: "El Oued", homeDelivery: 1000, stopDeskDelivery: 600 },
+  { code: 40, name: "خنشلة", nameFr: "Khenchela", homeDelivery: 850, stopDeskDelivery: 500 },
+  { code: 41, name: "سوق أهراس", nameFr: "Souk Ahras", homeDelivery: 850, stopDeskDelivery: 500 },
+  { code: 42, name: "تيبازة", nameFr: "Tipaza", homeDelivery: 600, stopDeskDelivery: 400 },
+  { code: 43, name: "ميلة", nameFr: "Mila", homeDelivery: 800, stopDeskDelivery: 450 },
+  { code: 44, name: "عين الدفلى", nameFr: "Aïn Defla", homeDelivery: 750, stopDeskDelivery: 450 },
+  { code: 45, name: "النعامة", nameFr: "Naâma", homeDelivery: 1050, stopDeskDelivery: 600 },
+  { code: 46, name: "عين تموشنت", nameFr: "Aïn Témouchent", homeDelivery: 900, stopDeskDelivery: 500 },
+  { code: 47, name: "غرداية", nameFr: "Ghardaïa", homeDelivery: 1000, stopDeskDelivery: 600 },
+  { code: 48, name: "غليزان", nameFr: "Relizane", homeDelivery: 850, stopDeskDelivery: 500 },
+  { code: 49, name: "تيميمون", nameFr: "Timimoun", homeDelivery: 1500, stopDeskDelivery: 950 },
+  { code: 50, name: "برج باجي مختار", nameFr: "Bordj Badji Mokhtar", homeDelivery: 1700, stopDeskDelivery: 1100 },
+  { code: 51, name: "أولاد جلال", nameFr: "Ouled Djellal", homeDelivery: 1000, stopDeskDelivery: 600 },
+  { code: 52, name: "بني عباس", nameFr: "Béni Abbès", homeDelivery: 1500, stopDeskDelivery: 950 },
+  { code: 53, name: "عين صالح", nameFr: "In Salah", homeDelivery: 1600, stopDeskDelivery: 1000 },
+  { code: 54, name: "عين قزام", nameFr: "In Guezzam", homeDelivery: 1700, stopDeskDelivery: 1100 },
+  { code: 55, name: "تقرت", nameFr: "Touggourt", homeDelivery: 1100, stopDeskDelivery: 650 },
+  { code: 56, name: "جانت", nameFr: "Djanet", homeDelivery: 1700, stopDeskDelivery: 1100 },
+  { code: 57, name: "المغير", nameFr: "El M'Ghair", homeDelivery: 1050, stopDeskDelivery: 600 },
+  { code: 58, name: "المنيعة", nameFr: "El Meniaa", homeDelivery: 1200, stopDeskDelivery: 700 },
+];

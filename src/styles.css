@@ -1,0 +1,204 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * HYDORA design system
+ * Brand palette: dark navy + bright cyan
+ * All colors defined as CSS variables and mapped in @theme inline.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* HYDORA brand tokens */
+  --color-navy: var(--brand-navy);
+  --color-navy-dark: var(--brand-navy-dark);
+  --color-navy-light: var(--brand-navy-light);
+  --color-cyan-brand: var(--brand-cyan);
+  --color-cyan-dark: var(--brand-cyan-dark);
+  --color-cyan-light: var(--brand-cyan-light);
+  --color-surface-alt: var(--surface-alt);
+  --color-surface-hero: var(--surface-hero);
+  --color-border-subtle: var(--border-subtle);
+
+  --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --font-cairo: "Cairo", ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-brand-sm: 0 2px 16px oklch(0.75 0.13 220 / 0.10);
+  --shadow-brand-md: 0 10px 32px oklch(0.75 0.13 220 / 0.18);
+}
+
+:root {
+  --radius: 0.9rem;
+
+  /* HYDORA brand — dark navy + bright cyan */
+  --brand-navy: #152558;
+  --brand-navy-dark: #0d1a45;
+  --brand-navy-light: #1e3470;
+  --brand-cyan: #00c4e2;
+  --brand-cyan-dark: #00a8c4;
+  --brand-cyan-light: #e0f8fd;
+
+  --surface-alt: #f4fbfd;
+  --surface-hero: #f0f9fc;
+  --border-subtle: #e5f5fb;
+
+  --background: #ffffff;
+  --foreground: #152558;
+  --card: #ffffff;
+  --card-foreground: #152558;
+  --popover: #ffffff;
+  --popover-foreground: #152558;
+  --primary: #152558;
+  --primary-foreground: #ffffff;
+  --secondary: #f4fbfd;
+  --secondary-foreground: #152558;
+  --muted: #f4fbfd;
+  --muted-foreground: #64748b;
+  --accent: #e0f8fd;
+  --accent-foreground: #152558;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #c8eef6;
+  --input: #c8eef6;
+  --ring: #00c4e2;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    font-family: var(--font-cairo);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-feature-settings: "kern", "liga";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    color: var(--brand-navy);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility container-hydora {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  max-width: 1280px;
+}
+
+@utility section-title-underline {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.75rem;
+}
+@utility section-title-underline {
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--brand-cyan);
+  }
+}
+
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 0.9rem;
+  background: var(--brand-navy);
+  color: #fff;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  &:hover {
+    background: var(--brand-navy-dark);
+  }
+}
+
+@utility btn-cyan {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 0.9rem;
+  background: var(--brand-cyan);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 8px 24px oklch(0.75 0.13 220 / 0.35);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  &:hover {
+    background: var(--brand-cyan-dark);
+  }
+}
+
+@utility btn-outline-navy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: 0.9rem;
+  border: 2px solid var(--brand-navy);
+  color: var(--brand-navy);
+  font-weight: 600;
+  background: transparent;
+  transition: all 0.2s ease;
+  &:hover {
+    background: var(--brand-navy);
+    color: #fff;
+  }
+}
+
+@utility card-hydora {
+  background: #fff;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 16px oklch(0.75 0.13 220 / 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px oklch(0.75 0.13 220 / 0.18);
+  }
+}
