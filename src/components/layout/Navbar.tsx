@@ -43,8 +43,8 @@ export function Navbar() {
                 التصنيفات
                 <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
               </button>
-              <div className="absolute top-full start-1/2 -translate-x-1/2 rtl:translate-x-1/2 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div className="bg-white rounded-2xl shadow-xl border border-border-subtle p-2 min-w-[240px]">
+              <div className="absolute top-full inset-s-1/2 -translate-x-1/2 rtl:translate-x-1/2 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="bg-white rounded-2xl shadow-xl border border-border-subtle p-2 min-w-240px">
                   {mockCategories.map((c) => (
                     <Link
                       key={c.id}
@@ -95,7 +95,7 @@ export function Navbar() {
           >
             <ShoppingCart className="h-5 w-5" />
             {totalItems > 0 && (
-              <span className="absolute -top-0.5 -end-0.5 bg-cyan-brand text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">
+              <span className="absolute -top-0.5 -inset-e-0.5 bg-cyan-brand text-white text-[10px] font-bold rounded-full min-w-18px h-18px px-1 flex items-center justify-center">
                 {totalItems}
               </span>
             )}

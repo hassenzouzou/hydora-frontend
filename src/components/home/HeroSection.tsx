@@ -5,28 +5,29 @@ import { mockProducts } from "@/lib/mock-data";
 export function HeroSection() {
   const bottles = mockProducts.slice(0, 4);
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-surface-hero to-white">
+    <section className="relative overflow-hidden bg-linear-to-b from-surface-hero to-white">
       <div className="container-hydora grid grid-cols-1 lg:grid-cols-5 gap-10 items-center py-16 lg:py-24 min-h-[75vh]">
         {/* Text — RTL: appears on the right */}
         <div className="lg:col-span-3 space-y-6 text-center lg:text-start">
-          <span className="inline-flex items-center gap-2 bg-cyan-light text-navy px-4 py-1.5 rounded-full text-sm font-semibold">
+          {/* <span className="inline-flex items-center gap-2 bg-cyan-light text-navy px-4 py-1.5 rounded-full text-sm font-semibold">
             <Sparkles className="h-4 w-4 text-cyan-brand" />
             الأفضل مبيعاً في الجزائر
-          </span>
+          </span> */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.15] text-navy">
             ترطيب يدوم
-            <br />
-            <span className="text-navy">معك أينما ذهبت</span>
+            <span className="block mt-4 text-navy">معك أينما ذهبت</span>
           </h1>
           <p className="text-navy/70 text-base md:text-lg max-w-xl mx-auto lg:mx-0">
-            قوارير حرارية عالية الجودة — تصميم أنيق وأداء استثنائي، للحياة اليومية والرحلات والرياضة.
+            قوارير حرارية عالية الجودة تصميم أنيق وأداء استثنائي، للحياة اليومية والرحلات والرياضة.
           </p>
           <div className="flex items-center justify-center lg:justify-start gap-3">
             <Link to="/products" className="btn-cyan">
               تسوق الآن
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <a href="#best-sellers" className="btn-outline-navy">اكتشف المجموعة</a>
+            <a href="#best-sellers" className="btn-outline-navy">
+              اكتشف المجموعة
+            </a>
           </div>
 
           {/* Feature badges */}
@@ -49,7 +50,7 @@ export function HeroSection() {
         </div>
 
         {/* Bottles — LTR side */}
-        <div className="lg:col-span-2 relative h-[380px] lg:h-[520px] hidden md:block">
+        <div className="lg:col-span-2 relative h-380px lg:h-520px hidden md:block">
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="absolute w-72 h-72 bg-cyan-light rounded-full blur-3xl opacity-60" />
           </div>
@@ -73,7 +74,11 @@ export function HeroSection() {
 
         {/* Mobile single hero bottle */}
         <div className="md:hidden mx-auto w-56 h-72 rounded-3xl overflow-hidden bg-white shadow-brand-md">
-          <img src={bottles[0].image} alt={bottles[0].name} className="w-full h-full object-cover" />
+          <img
+            src={bottles[0].image}
+            alt={bottles[0].name}
+            className="w-full h-full object-cover"
+          />
         </div>
       </div>
     </section>
