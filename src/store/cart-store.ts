@@ -33,10 +33,12 @@ export const useCartStore = create<CartStore>()(
       isDrawerOpen: false,
       openDrawer: () => set({ isDrawerOpen: true }),
       closeDrawer: () => set({ isDrawerOpen: false }),
+
       addItem: (item) => {
         const items = [...get().items];
         const idx = items.findIndex(
-          (i) => keyOf(i.productId, i.color, i.size) === keyOf(item.productId, item.color, item.size),
+          (i) =>
+            keyOf(i.productId, i.color, i.size) === keyOf(item.productId, item.color, item.size),
         );
         if (idx >= 0) {
           items[idx] = { ...items[idx], quantity: items[idx].quantity + item.quantity };
@@ -45,12 +47,14 @@ export const useCartStore = create<CartStore>()(
         }
         set({ items });
       },
+
       removeItem: (productId, color, size) =>
         set({
           items: get().items.filter(
             (i) => keyOf(i.productId, i.color, i.size) !== keyOf(productId, color, size),
           ),
         }),
+
       updateQuantity: (productId, color, size, qty) => {
         if (qty <= 0) {
           get().removeItem(productId, color, size);
@@ -64,7 +68,9 @@ export const useCartStore = create<CartStore>()(
           ),
         });
       },
+
       clearCart: () => set({ items: [] }),
+
       getTotalItems: () => get().items.reduce((s, i) => s + i.quantity, 0),
       getTotalPrice: () => get().items.reduce((s, i) => s + i.quantity * i.price, 0),
     }),

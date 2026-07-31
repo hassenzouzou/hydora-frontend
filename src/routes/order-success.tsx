@@ -7,9 +7,28 @@ export const Route = createFileRoute("/order-success")({
   head: () => ({
     meta: [
       { title: "تم استلام طلبك — HYDORA" },
-      { name: "description", content: "شكراً لطلبك من HYDORA. سنتواصل معك قريباً للتأكيد." },
+      {
+        name: "description",
+        content: "شكراً لطلبك من HYDORA. سنتواصل معك قريباً للتأكيد.",
+      },
       { property: "og:title", content: "تم استلام طلبك — HYDORA" },
-      { property: "og:description", content: "شكراً لطلبك من HYDORA. سنتواصل معك قريباً للتأكيد." },
+      {
+        property: "og:description",
+        content: "شكراً لطلبك من HYDORA. سنتواصل معك قريباً للتأكيد.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://hydora.dz/order-success" },
+      { property: "og:image", content: "https://hydora.dz/og-img.png" },
+      { property: "og:site_name", content: "HYDORA" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@hydora" },
+      { name: "twitter:creator", content: "@hydora" },
+      { name: "twitter:title", content: "تم استلام طلبك — HYDORA" },
+      {
+        name: "twitter:description",
+        content: "شكراً لطلبك من HYDORA. سنتواصل معك قريباً للتأكيد.",
+      },
+      { name: "twitter:image", content: "https://hydora.dz/og-img.png" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -33,14 +52,18 @@ function OrderSuccessPage() {
             <CheckCircle2 className="h-11 w-11 text-cyan-brand" />
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-navy">شكراً لطلبك!</h1>
-          <p className="text-muted-foreground mt-2">تم استلام طلبك بنجاح. سنتصل بك قريباً لتأكيد التفاصيل.</p>
+          <p className="text-muted-foreground mt-2">
+            تم استلام طلبك بنجاح. سنتصل بك قريباً لتأكيد التفاصيل.
+          </p>
         </div>
 
         <div className="bg-white border border-border-subtle rounded-2xl overflow-hidden">
           <div className="bg-navy text-white px-6 py-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-cyan-light/90">رقم الطلب</p>
-              <p className="font-bold text-lg" dir="ltr">{order.id}</p>
+              <p className="font-bold text-lg" dir="ltr">
+                {order.id}
+              </p>
             </div>
             <div className="text-end">
               <p className="text-xs text-cyan-light/90">التاريخ</p>
@@ -61,7 +84,11 @@ function OrderSuccessPage() {
                     key={`${it.productId}-${it.color}-${it.size}`}
                     className="flex gap-3 items-center bg-surface-alt rounded-xl p-3"
                   >
-                    <img src={it.image} alt={it.name} className="h-14 w-14 rounded-lg object-cover" />
+                    <img
+                      src={it.image}
+                      alt={it.name}
+                      className="h-14 w-14 rounded-lg object-cover"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-navy text-sm font-semibold line-clamp-1">{it.name}</p>
                       <p className="text-xs text-muted-foreground">
@@ -87,9 +114,6 @@ function OrderSuccessPage() {
                 <p className="text-xs text-muted-foreground mt-1">
                   {order.customer.wilayaName} — {order.customer.commune}
                 </p>
-                {order.customer.address && (
-                  <p className="text-xs text-muted-foreground">{order.customer.address}</p>
-                )}
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1" dir="ltr">
                   <Phone className="h-3 w-3" /> {order.customer.phone}
                 </p>
@@ -103,9 +127,6 @@ function OrderSuccessPage() {
                   {order.customer.deliveryType === "home" ? "توصيل للمنزل" : "توصيل للمكتب"}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">الدفع عند الاستلام</p>
-                {order.customer.notes && (
-                  <p className="text-xs text-muted-foreground mt-2">ملاحظة: {order.customer.notes}</p>
-                )}
               </div>
             </div>
 
@@ -128,8 +149,12 @@ function OrderSuccessPage() {
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link to="/" className="btn-outline-navy">العودة للرئيسية</Link>
-          <Link to="/products" className="btn-cyan">متابعة التسوق</Link>
+          <Link to="/" className="btn-outline-navy">
+            العودة للرئيسية
+          </Link>
+          <Link to="/products" className="btn-cyan">
+            متابعة التسوق
+          </Link>
         </div>
       </div>
     </div>

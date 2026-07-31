@@ -52,7 +52,7 @@
   --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
   --font-cairo: "Cairo", ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-brand-sm: 0 2px 16px oklch(0.75 0.13 220 / 0.10);
+  --shadow-brand-sm: 0 2px 16px oklch(0.75 0.13 220 / 0.1);
   --shadow-brand-md: 0 10px 32px oklch(0.75 0.13 220 / 0.18);
 }
 
@@ -108,7 +108,10 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     color: var(--brand-navy);
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -151,7 +154,9 @@
   background: var(--brand-navy);
   color: #fff;
   font-weight: 600;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
   &:hover {
     background: var(--brand-navy-dark);
   }
@@ -168,7 +173,9 @@
   color: #fff;
   font-weight: 600;
   box-shadow: 0 8px 24px oklch(0.75 0.13 220 / 0.35);
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
   &:hover {
     background: var(--brand-cyan-dark);
   }
@@ -196,7 +203,9 @@
   background: #fff;
   border-radius: 1.25rem;
   box-shadow: 0 2px 16px oklch(0.75 0.13 220 / 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 28px oklch(0.75 0.13 220 / 0.18);

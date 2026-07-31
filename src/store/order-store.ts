@@ -8,13 +8,10 @@ export type PlacedOrder = {
   customer: {
     fullName: string;
     phone: string;
-    email?: string;
     wilayaCode: number;
     wilayaName: string;
     commune: string;
-    address: string;
     deliveryType: "home" | "stopdesk";
-    notes?: string;
   };
   subtotal: number;
   shipping: number;

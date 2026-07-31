@@ -3,13 +3,22 @@ import { ShoppingCart, Menu, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "./Logo";
 import { useCartStore } from "@/store/cart-store";
-import { mockCategories } from "@/lib/mock-data";
+import { useCategories } from "@/hooks/use-api";
+
+interface Category {
+  id: string | number;
+  name?: string;
+  slug?: string;
+  [key: string]: unknown;
+}
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
   const totalItems = useCartStore((s) => s.getTotalItems());
   const openDrawer = useCartStore((s) => s.openDrawer);
+
+  const { data: categories } = useCategories();
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border-subtle">
@@ -38,35 +47,49 @@ export function Navbar() {
             >
               المنتجات
             </Link>
+
+            {/* ✅ 3. قسم التصنيفات مع تصميم الدروب داون المُحسن */}
             <li className="relative group list-none">
-              <button className="inline-flex items-center gap-1 hover:text-cyan-brand transition-colors">
+              {/* أضفنا py-4 هنا لزيادة مساحة الالتقاط ومنع اختفاء القائمة بسرعة */}
+              <button className="inline-flex items-center gap-1 hover:text-cyan-brand transition-colors py-4">
                 التصنيفات
-                <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
+                <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:rotate-180" />
               </button>
-              <div className="absolute top-full inset-s-1/2 -translate-x-1/2 rtl:translate-x-1/2 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div className="bg-white rounded-2xl shadow-xl border border-border-subtle p-2 min-w-240px">
-                  {mockCategories.map((c) => (
-                    <Link
-                      key={c.id}
-                      to="/products"
-                      search={{ category: c.slug }}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-cyan-light text-navy text-sm transition-colors"
-                    >
-                      <img src={c.image} alt="" className="w-9 h-9 rounded-lg object-cover" />
-                      <span className="font-medium">{c.name}</span>
-                    </Link>
-                  ))}
-                  <div className="border-t border-border-subtle mt-2 pt-2">
-                    <Link
-                      to="/products"
-                      className="block px-3 py-2 rounded-lg hover:bg-cyan-light text-cyan-brand text-sm font-semibold text-center"
-                    >
-                      عرض جميع المنتجات
-                    </Link>
-                  </div>
+
+              {/* الحاوية الرئيسية للدروب داون */}
+              <div className="absolute top-[85%] inset-s-0 rtl:inset-s-auto rtl:inset-e-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                <div className="bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(21,37,88,0.15)] border border-border-subtle p-3 min-w-65 flex flex-col gap-1">
+                  {categories?.map((c: Category) => {
+                    const catName = c.name || "قسم";
+                    const catSlug = c.slug || "";
+
+                    return (
+                      <Link
+                        key={c.id}
+                        to="/products"
+                        search={{ category: catSlug }}
+                        className="block px-4 py-2.5 rounded-xl hover:bg-surface-alt text-navy font-semibold text-[14px] transition-all hover:translate-x-1 rtl:hover:-translate-x-1 hover:text-cyan-brand"
+                      >
+                        {catName}
+                      </Link>
+                    );
+                  })}
+
+                  {categories && categories.length > 0 && (
+                    <>
+                      <div className="h-px bg-border-subtle my-2 mx-2"></div>
+                      <Link
+                        to="/products"
+                        className="block px-3 py-2.5 rounded-xl hover:bg-cyan-brand/10 text-cyan-brand text-sm font-bold text-center transition-colors"
+                      >
+                        عرض جميع المنتجات
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </li>
+
             <Link
               to="/about"
               className="hover:text-cyan-brand transition-colors"
@@ -85,17 +108,15 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link to="/" aria-label="HYDORA">
-            <Logo />
-          </Link>
+          <Logo />
           <button
             onClick={openDrawer}
             aria-label="السلة"
-            className="relative p-2 rounded-lg hover:bg-cyan-light text-navy"
+            className="relative p-2 rounded-lg hover:bg-cyan-light text-navy transition-colors"
           >
             <ShoppingCart className="h-5 w-5" />
             {totalItems > 0 && (
-              <span className="absolute -top-0.5 -inset-e-0.5 bg-cyan-brand text-white text-[10px] font-bold rounded-full min-w-18px h-18px px-1 flex items-center justify-center">
+              <span className="absolute -top-1 -inset-e-1 bg-cyan-brand text-white text-[10px] font-bold rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center shadow-sm">
                 {totalItems}
               </span>
             )}
@@ -136,15 +157,15 @@ export function Navbar() {
               </button>
               {mobileCatsOpen && (
                 <ul className="ps-4 pb-2 space-y-1">
-                  {mockCategories.map((c) => (
+                  {categories?.map((c: Category) => (
                     <li key={c.id}>
                       <Link
                         to="/products"
-                        search={{ category: c.slug }}
+                        search={{ category: c.slug || "" }}
                         onClick={() => setMobileOpen(false)}
                         className="block py-2 text-sm text-navy/80 hover:text-cyan-brand"
                       >
-                        {c.name}
+                        {c.name || "قسم"}
                       </Link>
                     </li>
                   ))}

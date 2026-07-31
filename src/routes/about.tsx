@@ -5,21 +5,47 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "من نحن — HYDORA" },
-      { name: "description", content: "تعرّف على HYDORA — علامة جزائرية متخصصة في القوارير الحرارية عالية الجودة، رسالتنا، قيمنا، وقصتنا." },
+      {
+        name: "description",
+        content:
+          "تعرّف على HYDORA — علامة جزائرية متخصصة في القوارير الحرارية عالية الجودة، رسالتنا، قيمنا، وقصتنا.",
+      },
       { property: "og:title", content: "من نحن — HYDORA" },
-      { property: "og:description", content: "قصة HYDORA ورسالتنا في تقديم قوارير ترطيب استثنائية للسوق الجزائري." },
+      {
+        property: "og:description",
+        content: "قصة HYDORA ورسالتنا في تقديم قوارير ترطيب استثنائية للسوق الجزائري.",
+      },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://hydora.dz/about" },
+      { property: "og:image", content: "https://hydora.dz/og-img.png" },
+      { property: "og:site_name", content: "HYDORA" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@hydora" },
+      { name: "twitter:creator", content: "@hydora" },
+      { name: "twitter:title", content: "من نحن — HYDORA" },
+      {
+        name: "twitter:description",
+        content: "قصة HYDORA ورسالتنا في تقديم قوارير ترطيب استثنائية للسوق الجزائري.",
+      },
+      { name: "twitter:image", content: "https://hydora.dz/og-img.png" },
     ],
   }),
   component: AboutPage,
 });
 
 const values = [
-  { icon: Award, title: "جودة عالية", text: "ستانلس ستيل مزدوج الجدار، معايير صارمة في كل قارورة نصنعها." },
+  {
+    icon: Award,
+    title: "جودة عالية",
+    text: "ستانلس ستيل مزدوج الجدار، معايير صارمة في كل قارورة نصنعها.",
+  },
   { icon: Leaf, title: "صديقة للبيئة", text: "قلل استخدام البلاستيك واحمل قارورتك أينما ذهبت." },
   { icon: Droplets, title: "ترطيب يدوم", text: "برودة تصل إلى 24 ساعة وحرارة تدوم 12 ساعة." },
-  { icon: Users, title: "قريبون منك", text: "خدمة عملاء جزائرية، توصيل لجميع الولايات، دفع عند الاستلام." },
+  {
+    icon: Users,
+    title: "قريبون منك",
+    text: "خدمة عملاء جزائرية، توصيل لجميع الولايات، دفع عند الاستلام.",
+  },
 ];
 
 function AboutPage() {
@@ -35,7 +61,8 @@ function AboutPage() {
             HYDORA — ترطيب يليق بيومك
           </h1>
           <p className="mt-5 text-navy/70 text-lg leading-relaxed">
-            علامة جزائرية شابة تؤمن أن الترطيب اليومي يستحق قارورة أنيقة، عملية، ومصممة لتدوم. من قلب الجزائر إلى كل ولاية.
+            علامة جزائرية شابة تؤمن أن الترطيب اليومي يستحق قارورة أنيقة، عملية، ومصممة لتدوم. من
+            قلب الجزائر إلى كل ولاية.
           </p>
         </div>
       </section>
@@ -46,10 +73,12 @@ function AboutPage() {
           <h2 className="section-title-underline text-2xl md:text-3xl">قصتنا</h2>
           <div className="mt-6 space-y-4 text-navy/80 leading-relaxed">
             <p>
-              بدأت HYDORA من فكرة بسيطة: لماذا لا تتوفر قوارير حرارية عالية الجودة بأسعار عادلة في السوق الجزائري؟ فقررنا أن نجيب بأنفسنا.
+              بدأت HYDORA من فكرة بسيطة: لماذا لا تتوفر قوارير حرارية عالية الجودة بأسعار عادلة في
+              السوق الجزائري؟ فقررنا أن نجيب بأنفسنا.
             </p>
             <p>
-              اليوم، نقدم مجموعة متكاملة من القوارير الحرارية والرياضية والمكتبية، مصممة خصيصاً لتتحمل الاستخدام اليومي وتحافظ على مشروبك بالدرجة المثالية.
+              اليوم، نقدم مجموعة متكاملة من القوارير الحرارية والرياضية والمكتبية، مصممة خصيصاً
+              لتتحمل الاستخدام اليومي وتحافظ على مشروبك بالدرجة المثالية.
             </p>
             <p>
               نؤمن أن كل رشفة ماء تستحق أن تكون بنفس النقاء والانتعاش الذي أخذتها به من أول لحظة.
@@ -89,7 +118,9 @@ function AboutPage() {
       <section className="container-hydora py-16 text-center">
         <h2 className="text-2xl md:text-3xl font-extrabold text-navy">جاهز لاكتشاف مجموعتنا؟</h2>
         <p className="mt-3 text-navy/70">تصفّح كل القوارير واختر ما يناسب أسلوب حياتك.</p>
-        <Link to="/products" className="btn-cyan inline-block mt-6">تصفح المنتجات</Link>
+        <Link to="/products" className="btn-cyan inline-block mt-6">
+          تصفح المنتجات
+        </Link>
       </section>
     </div>
   );

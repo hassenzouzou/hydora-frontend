@@ -1,15 +1,45 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Phone, Mail, MapPin, Clock, Instagram, Facebook, Send, MessageCircle, Headphones, Truck, ShieldCheck } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Instagram,
+  Facebook,
+  Send,
+  MessageCircle,
+  Headphones,
+  Truck,
+  ShieldCheck,
+} from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "تواصل معنا — HYDORA" },
-      { name: "description", content: "تواصل مع فريق HYDORA — الهاتف، البريد الإلكتروني، العنوان، وساعات العمل. نحن هنا لخدمتك." },
+      {
+        name: "description",
+        content:
+          "تواصل مع فريق HYDORA — الهاتف، البريد الإلكتروني، العنوان، وساعات العمل. نحن هنا لخدمتك.",
+      },
       { property: "og:title", content: "تواصل معنا — HYDORA" },
-      { property: "og:description", content: "معلومات الاتصال بمتجر HYDORA وخدمة العملاء." },
+      {
+        property: "og:description",
+        content: "معلومات الاتصال بمتجر HYDORA وخدمة العملاء.",
+      },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://hydora.dz/contact" },
+      { property: "og:image", content: "https://hydora.dz/og-img.png" },
+      { property: "og:site_name", content: "HYDORA" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@hydora" },
+      { name: "twitter:creator", content: "@hydora" },
+      { name: "twitter:title", content: "تواصل معنا — HYDORA" },
+      {
+        name: "twitter:description",
+        content: "معلومات الاتصال بمتجر HYDORA وخدمة العملاء.",
+      },
+      { name: "twitter:image", content: "https://hydora.dz/og-img.png" },
     ],
   }),
   component: ContactPage,
@@ -49,9 +79,21 @@ const socialLinks = [
 ];
 
 const promises = [
-  { icon: Headphones, title: "دعم مباشر", text: "فريق خدمة عملاء جزائري جاهز للإجابة على استفساراتك." },
-  { icon: Truck, title: "توصيل لكل الولايات", text: "نوصل طلباتك إلى باب منزلك في جميع ولايات الجزائر." },
-  { icon: ShieldCheck, title: "ثقة مضمونة", text: "منتجات أصلية مع ضمان الجودة وإمكانية الاستبدال." },
+  {
+    icon: Headphones,
+    title: "دعم مباشر",
+    text: "فريق خدمة عملاء جزائري جاهز للإجابة على استفساراتك.",
+  },
+  {
+    icon: Truck,
+    title: "توصيل لكل الولايات",
+    text: "نوصل طلباتك إلى باب منزلك في جميع ولايات الجزائر.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "ثقة مضمونة",
+    text: "منتجات أصلية مع ضمان الجودة وإمكانية الاستبدال.",
+  },
 ];
 
 function ContactPage() {
@@ -70,16 +112,13 @@ function ContactPage() {
             نحن هنا لخدمتك
           </h1>
           <p className="mt-5 text-navy/70 text-lg leading-relaxed">
-            لأي استفسار أو مساعدة، فريق HYDORA جاهز للرد عليك خلال ساعات العمل. اختر الطريقة الأنسب للتواصل معنا.
+            لأي استفسار أو مساعدة، فريق HYDORA جاهز للرد عليك خلال ساعات العمل. اختر الطريقة الأنسب
+            للتواصل معنا.
           </p>
 
           {/* Quick actions */}
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <a
-              href="tel:0555123456"
-              className="btn-primary"
-              aria-label="اتصل بنا"
-            >
+            <a href="tel:0555123456" className="btn-primary" aria-label="اتصل بنا">
               <Phone className="h-4 w-4" />
               اتصل بنا الآن
             </a>
@@ -201,7 +240,12 @@ function LocationCard() {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-navy text-white p-6">
       <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <svg className="w-full h-full" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          className="w-full h-full"
+          viewBox="0 0 400 300"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
             d="M50 220 C80 180, 120 200, 160 170 C200 140, 240 160, 280 130 C320 100, 360 120, 400 90"
             stroke="currentColor"
@@ -220,7 +264,8 @@ function LocationCard() {
         </div>
         <h3 className="font-bold text-lg mb-2">موقع المتجر</h3>
         <p className="text-white/80 text-sm leading-relaxed mb-4">
-          شارع ديدوش مراد<br />
+          شارع ديدوش مراد
+          <br />
           الجزائر العاصمة، الجزائر 16000
         </p>
         <a

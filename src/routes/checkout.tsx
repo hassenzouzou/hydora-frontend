@@ -1,368 +1,338 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { CheckCircle2, ShoppingBag, Truck, MapPin, Phone, User } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useCartStore } from "@/store/cart-store";
 import { useOrderStore } from "@/store/order-store";
-import { wilayas } from "@/lib/wilayas";
 import { formatPrice } from "@/lib/format";
 import { toast } from "sonner";
+import { createOrder, getDeliveryRates } from "@/services/api";
+
+// ✅ 1. تعريف واجهات TypeScript بدقة تامة لتجنب any
+interface DeliveryRateAttributes {
+  wilaya_name: string;
+  home_delivery_cost: number;
+  desk_delivery_cost: number;
+  is_free_delivery: boolean;
+  [key: string]: unknown;
+}
+
+interface DeliveryRateItem {
+  id: number | string;
+  attributes?: DeliveryRateAttributes;
+  wilaya_name?: string;
+  home_delivery_cost?: number;
+  desk_delivery_cost?: number;
+  is_free_delivery?: boolean;
+  [key: string]: unknown;
+}
+
+interface DeliveryRatesResponse {
+  data?: DeliveryRateItem[];
+  [key: string]: unknown;
+}
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
-      { title: "الدفع — HYDORA" },
-      { name: "description", content: "أكمل طلبك — دفع عند الاستلام مع توصيل لجميع الولايات." },
-      { property: "og:title", content: "الدفع — HYDORA" },
-      { property: "og:description", content: "أكمل طلبك — دفع عند الاستلام مع توصيل لجميع الولايات." },
-      { name: "robots", content: "noindex" },
+      { title: "إتمام الطلب — HYDORA" },
+      {
+        name: "description",
+        content: "أتمتة طلبك مع HYDORA — توصيل لجميع الولايات، الدفع عند الاستلام.",
+      },
+      { property: "og:title", content: "إتمام الطلب — HYDORA" },
+      {
+        property: "og:description",
+        content: "أتمتة طلبك مع HYDORA — توصيل لجميع الولايات، الدفع عند الاستلام.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://hydora.dz/checkout" },
+      { property: "og:image", content: "https://hydora.dz/og-img.png" },
+      { property: "og:site_name", content: "HYDORA" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@hydora" },
+      { name: "twitter:creator", content: "@hydora" },
+      { name: "twitter:title", content: "إتمام الطلب — HYDORA" },
+      {
+        name: "twitter:description",
+        content: "أتمتة طلبك مع HYDORA — توصيل لجميع الولايات، الدفع عند الاستلام.",
+      },
+      { name: "twitter:image", content: "https://hydora.dz/og-img.png" },
     ],
   }),
   component: CheckoutPage,
 });
 
-type FormState = {
-  fullName: string;
-  phone: string;
-  email: string;
-  wilayaCode: string;
-  commune: string;
-  address: string;
-  deliveryType: "home" | "stopdesk";
-  notes: string;
-};
-
-const initialForm: FormState = {
-  fullName: "",
-  phone: "",
-  email: "",
-  wilayaCode: "",
-  commune: "",
-  address: "",
-  deliveryType: "home",
-  notes: "",
-};
-
 function CheckoutPage() {
   const navigate = useNavigate();
-  const items = useCartStore((s) => s.items);
-  const subtotal = useCartStore((s) => s.getTotalPrice());
+  const cartItems = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clearCart);
-  const setLastOrder = useOrderStore((s) => s.setLastOrder);
 
-  const [form, setForm] = useState<FormState>(initialForm);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
-  const [submitting, setSubmitting] = useState(false);
+  // ✅ التعامل مع الستور بطريقة آمنة بدون any
+  const setOrder = useOrderStore((s) => {
+    const store = s as unknown as {
+      setOrder?: (order: unknown) => void;
+      setLastOrder?: (order: unknown) => void;
+    };
+    return store.setOrder || store.setLastOrder;
+  });
 
-  const selectedWilaya = useMemo(
-    () => wilayas.find((w) => String(w.code) === form.wilayaCode),
-    [form.wilayaCode],
+  // ✅ جلب الولايات والتسعيرات من Strapi مع التحديد النوعي
+  const { data: ratesResponse, isLoading: isLoadingRates } = useQuery<DeliveryRatesResponse>({
+    queryKey: ["deliveryRates"],
+    queryFn: getDeliveryRates,
+  });
+
+  const wilayasList = ratesResponse?.data || [];
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    wilaya: "الجزائر",
+    baladiya: "",
+    deliveryType: "home",
+  });
+
+  // ✅ البحث عن تسعيرة الولاية المختارة بدون any
+  const selectedWilayaObj = wilayasList.find((w: DeliveryRateItem) => {
+    const name = w.attributes?.wilaya_name || w.wilaya_name;
+    return name === formData.wilaya;
+  });
+
+  const homeCost =
+    selectedWilayaObj?.attributes?.home_delivery_cost ?? selectedWilayaObj?.home_delivery_cost ?? 0;
+  const deskCost =
+    selectedWilayaObj?.attributes?.desk_delivery_cost ?? selectedWilayaObj?.desk_delivery_cost ?? 0;
+  const isFree =
+    selectedWilayaObj?.attributes?.is_free_delivery ?? selectedWilayaObj?.is_free_delivery ?? false;
+
+  const subTotal = cartItems.reduce(
+    (acc, item) => acc + Number(item.price) * Number(item.quantity),
+    0,
   );
 
-  const shipping = useMemo(() => {
-    if (!selectedWilaya) return 0;
-    return form.deliveryType === "home"
-      ? selectedWilaya.homeDelivery
-      : selectedWilaya.stopDeskDelivery;
-  }, [selectedWilaya, form.deliveryType]);
+  const shippingCost = isFree
+    ? 0
+    : formData.deliveryType === "home"
+      ? Number(homeCost)
+      : Number(deskCost);
 
-  const total = subtotal + shipping;
+  const total = subTotal + shippingCost;
 
-  const update = <K extends keyof FormState>(k: K, v: FormState[K]) => {
-    setForm((f) => ({ ...f, [k]: v }));
-    setErrors((e) => ({ ...e, [k]: undefined }));
-  };
-
-  if (items.length === 0) {
+  if (cartItems.length === 0) {
     return (
-      <div className="container-hydora py-20 text-center">
-        <div className="h-24 w-24 rounded-full bg-cyan-light mx-auto flex items-center justify-center mb-5">
-          <ShoppingBag className="h-11 w-11 text-cyan-brand" />
-        </div>
-        <h1 className="text-2xl font-bold text-navy">لا توجد منتجات للدفع</h1>
-        <p className="text-muted-foreground mt-2 text-sm">أضف منتجات إلى سلتك أولاً.</p>
-        <Link to="/products" className="btn-cyan mt-6 inline-flex">تصفح المنتجات</Link>
+      <div className="container-hydora py-32 text-center min-h-[60vh] flex flex-col items-center justify-center">
+        <h2 className="text-2xl font-bold text-navy mb-4">سلة المشتريات فارغة</h2>
+        <button onClick={() => navigate({ to: "/products" })} className="btn-cyan">
+          تسوق الآن
+        </button>
       </div>
     );
   }
 
-  const validate = () => {
-    const e: Partial<Record<keyof FormState, string>> = {};
-    if (!form.fullName.trim()) e.fullName = "الاسم مطلوب";
-    if (!/^0[567]\d{8}$/.test(form.phone.trim()))
-      e.phone = "أدخل رقم جزائري صحيح (10 أرقام يبدأ بـ 05/06/07)";
-    if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) e.email = "بريد إلكتروني غير صحيح";
-    if (!form.wilayaCode) e.wilayaCode = "اختر الولاية";
-    if (!form.commune.trim()) e.commune = "البلدية مطلوبة";
-    if (form.deliveryType === "home" && !form.address.trim()) e.address = "العنوان مطلوب للتوصيل للمنزل";
-    setErrors(e);
-    return Object.keys(e).length === 0;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (ev: React.FormEvent) => {
-    ev.preventDefault();
-    if (!validate() || !selectedWilaya) {
-      toast.error("تحقق من الحقول المميزة");
-      return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const orderPayload = {
+        client_name: formData.fullName,
+        phone: formData.phone,
+        wilaya: formData.wilaya,
+        baladiya: formData.baladiya,
+        delivery_type: formData.deliveryType,
+        delivery_cost: shippingCost,
+        total_amount: total,
+        order_status: "new",
+        ordered_items: cartItems.map((item) => ({
+          product_id: item.productId,
+          name: item.name,
+          quantity: Number(item.quantity),
+          price: Number(item.price),
+          color: item.color,
+          size: item.size,
+        })),
+      };
+
+      const response = (await createOrder(orderPayload)) as {
+        data?: { id?: number | string };
+        id?: number | string;
+      };
+      const createdOrderId = response?.data?.id || response?.id || "0000";
+
+      if (setOrder) {
+        setOrder({
+          id: createdOrderId,
+          createdAt: new Date().toISOString(),
+          items: cartItems,
+          customer: {
+            fullName: formData.fullName,
+            phone: formData.phone,
+            wilayaName: formData.wilaya,
+            commune: formData.baladiya,
+            deliveryType: formData.deliveryType,
+          },
+          subtotal: subTotal,
+          shipping: shippingCost,
+          total: total,
+        });
+      }
+
+      clearCart();
+      toast.success("تم تأكيد طلبك بنجاح!");
+      navigate({ to: "/order-success" });
+    } catch {
+      toast.error("حدث خطأ أثناء إرسال الطلب، يرجى المحاولة لاحقاً.");
+    } finally {
+      setIsSubmitting(false);
     }
-    setSubmitting(true);
-    // Simulate order placement — replace with Strapi POST later.
-    await new Promise((r) => setTimeout(r, 700));
-
-    const order = {
-      id: `HYD-${Date.now().toString().slice(-8)}`,
-      createdAt: new Date().toISOString(),
-      items,
-      customer: {
-        fullName: form.fullName.trim(),
-        phone: form.phone.trim(),
-        email: form.email.trim() || undefined,
-        wilayaCode: selectedWilaya.code,
-        wilayaName: selectedWilaya.name,
-        commune: form.commune.trim(),
-        address: form.address.trim(),
-        deliveryType: form.deliveryType,
-        notes: form.notes.trim() || undefined,
-      },
-      subtotal,
-      shipping,
-      total,
-    };
-
-    setLastOrder(order);
-    clearCart();
-    setSubmitting(false);
-    toast.success("تم استلام طلبك بنجاح");
-    navigate({ to: "/order-success" });
   };
-
-  const inputCls = (hasError?: string) =>
-    `w-full bg-white border-2 rounded-lg px-3 py-2.5 text-sm text-navy outline-none transition-colors ${
-      hasError ? "border-destructive" : "border-border-subtle focus:border-cyan-brand"
-    }`;
 
   return (
-    <div className="container-hydora py-8">
-      <h1 className="text-3xl font-extrabold text-navy mb-2">إتمام الطلب</h1>
-      <p className="text-muted-foreground text-sm mb-6">دفع عند الاستلام — لا يلزم دفع مسبق.</p>
-
-      <form onSubmit={handleSubmit} className="grid lg:grid-cols-[1fr_380px] gap-8">
-        <div className="space-y-6">
-          {/* Contact */}
-          <section className="bg-white border border-border-subtle rounded-2xl p-6">
-            <h2 className="text-navy font-bold text-lg mb-4 flex items-center gap-2">
-              <User className="h-5 w-5 text-cyan-brand" />
-              معلومات التواصل
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-navy font-semibold text-sm mb-1 block">الاسم الكامل *</label>
-                <input
-                  value={form.fullName}
-                  onChange={(e) => update("fullName", e.target.value)}
-                  className={inputCls(errors.fullName)}
-                  placeholder="محمد بن أحمد"
-                />
-                {errors.fullName && <p className="text-xs text-destructive mt-1">{errors.fullName}</p>}
-              </div>
-              <div>
-                <label className="text-navy font-semibold text-sm mb-1 block flex items-center gap-1">
-                  <Phone className="h-3.5 w-3.5" /> رقم الهاتف *
-                </label>
-                <input
-                  value={form.phone}
-                  onChange={(e) => update("phone", e.target.value)}
-                  className={inputCls(errors.phone)}
-                  placeholder="0555 12 34 56"
-                  inputMode="tel"
-                  dir="ltr"
-                />
-                {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
-              </div>
-              <div className="sm:col-span-2">
-                <label className="text-navy font-semibold text-sm mb-1 block">البريد الإلكتروني (اختياري)</label>
-                <input
-                  value={form.email}
-                  onChange={(e) => update("email", e.target.value)}
-                  className={inputCls(errors.email)}
-                  placeholder="you@example.com"
-                  type="email"
-                  dir="ltr"
-                />
-                {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
-              </div>
+    <div className="container-hydora py-12">
+      <h1 className="text-3xl font-extrabold text-navy mb-8">إتمام الطلب</h1>
+      <div className="grid lg:grid-cols-12 gap-10 items-start">
+        {/* نموذج معلومات التوصيل */}
+        <div className="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-border-subtle">
+          <h2 className="text-xl font-bold text-navy mb-5">معلومات التوصيل</h2>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-navy mb-2">الاسم الكامل</label>
+              <input
+                type="text"
+                name="fullName"
+                required
+                value={formData.fullName}
+                onChange={handleChange}
+                className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm"
+                placeholder="أدخل اسمك الكامل"
+              />
             </div>
-          </section>
-
-          {/* Address */}
-          <section className="bg-white border border-border-subtle rounded-2xl p-6">
-            <h2 className="text-navy font-bold text-lg mb-4 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-cyan-brand" />
-              عنوان التوصيل
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-navy mb-2">رقم الهاتف</label>
+              <input
+                type="tel"
+                name="phone"
+                required
+                dir="ltr"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm text-end"
+                placeholder="0555 00 00 00"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-navy font-semibold text-sm mb-1 block">الولاية *</label>
+                <label className="block text-sm font-semibold text-navy mb-2">الولاية</label>
                 <select
-                  value={form.wilayaCode}
-                  onChange={(e) => update("wilayaCode", e.target.value)}
-                  className={inputCls(errors.wilayaCode)}
+                  name="wilaya"
+                  value={formData.wilaya}
+                  onChange={handleChange}
+                  className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm"
+                  disabled={isLoadingRates}
                 >
-                  <option value="">اختر الولاية</option>
-                  {wilayas.map((w) => (
-                    <option key={w.code} value={w.code}>
-                      {w.code.toString().padStart(2, "0")} — {w.name}
-                    </option>
-                  ))}
+                  {isLoadingRates ? (
+                    <option>جاري تحميل الولايات...</option>
+                  ) : (
+                    wilayasList.map((w: DeliveryRateItem) => {
+                      const name = w.attributes?.wilaya_name || w.wilaya_name || "";
+                      return (
+                        <option key={w.id} value={name}>
+                          {name}
+                        </option>
+                      );
+                    })
+                  )}
                 </select>
-                {errors.wilayaCode && <p className="text-xs text-destructive mt-1">{errors.wilayaCode}</p>}
               </div>
               <div>
-                <label className="text-navy font-semibold text-sm mb-1 block">البلدية *</label>
+                <label className="block text-sm font-semibold text-navy mb-2">البلدية</label>
                 <input
-                  value={form.commune}
-                  onChange={(e) => update("commune", e.target.value)}
-                  className={inputCls(errors.commune)}
-                  placeholder="اسم البلدية"
-                />
-                {errors.commune && <p className="text-xs text-destructive mt-1">{errors.commune}</p>}
-              </div>
-              <div className="sm:col-span-2">
-                <label className="text-navy font-semibold text-sm mb-1 block">
-                  العنوان التفصيلي {form.deliveryType === "home" && "*"}
-                </label>
-                <input
-                  value={form.address}
-                  onChange={(e) => update("address", e.target.value)}
-                  className={inputCls(errors.address)}
-                  placeholder="الحي، الشارع، رقم المنزل"
-                />
-                {errors.address && <p className="text-xs text-destructive mt-1">{errors.address}</p>}
-              </div>
-              <div className="sm:col-span-2">
-                <label className="text-navy font-semibold text-sm mb-1 block">ملاحظات (اختياري)</label>
-                <textarea
-                  value={form.notes}
-                  onChange={(e) => update("notes", e.target.value)}
-                  className={inputCls()}
-                  rows={2}
-                  placeholder="أي معلومات إضافية للتوصيل"
+                  type="text"
+                  name="baladiya"
+                  required
+                  value={formData.baladiya}
+                  onChange={handleChange}
+                  className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm"
+                  placeholder="الحي / البلدية"
                 />
               </div>
             </div>
-          </section>
-
-          {/* Delivery */}
-          <section className="bg-white border border-border-subtle rounded-2xl p-6">
-            <h2 className="text-navy font-bold text-lg mb-4 flex items-center gap-2">
-              <Truck className="h-5 w-5 text-cyan-brand" />
-              طريقة التوصيل
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {(["home", "stopdesk"] as const).map((d) => {
-                const active = form.deliveryType === d;
-                const price = selectedWilaya
-                  ? d === "home"
-                    ? selectedWilaya.homeDelivery
-                    : selectedWilaya.stopDeskDelivery
-                  : null;
-                return (
-                  <button
-                    type="button"
-                    key={d}
-                    onClick={() => update("deliveryType", d)}
-                    className={`text-start p-4 rounded-xl border-2 transition-all ${
-                      active
-                        ? "border-cyan-brand bg-cyan-light/50"
-                        : "border-border-subtle bg-white hover:border-cyan-brand/50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-navy font-semibold">
-                        {d === "home" ? "توصيل للمنزل" : "توصيل للمكتب (Stop Desk)"}
-                      </span>
-                      {active && <CheckCircle2 className="h-5 w-5 text-cyan-brand" />}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {d === "home" ? "يصلك أمام باب منزلك" : "استلام من أقرب مكتب توصيل"}
-                    </p>
-                    {price !== null && (
-                      <p className="text-cyan-brand font-bold text-sm mt-2">{formatPrice(price)}</p>
-                    )}
-                  </button>
-                );
-              })}
+            <div>
+              <label className="block text-sm font-semibold text-navy mb-2">نوع التوصيل</label>
+              <select
+                name="deliveryType"
+                value={formData.deliveryType}
+                onChange={handleChange}
+                className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm"
+              >
+                <option value="home">
+                  توصيل للمنزل ({isFree ? "مجاني" : formatPrice(Number(homeCost))})
+                </option>
+                <option value="desk">
+                  توصيل للمكتب / نقطة استلام ({isFree ? "مجاني" : formatPrice(Number(deskCost))})
+                </option>
+              </select>
             </div>
-          </section>
-
-          {/* Payment */}
-          <section className="bg-white border border-border-subtle rounded-2xl p-6">
-            <h2 className="text-navy font-bold text-lg mb-4">طريقة الدفع</h2>
-            <div className="flex items-center gap-3 p-4 border-2 border-cyan-brand bg-cyan-light/50 rounded-xl">
-              <CheckCircle2 className="h-5 w-5 text-cyan-brand flex-shrink-0" />
-              <div>
-                <p className="text-navy font-semibold">الدفع عند الاستلام</p>
-                <p className="text-xs text-muted-foreground">ادفع نقداً عند استلام طلبك.</p>
-              </div>
-            </div>
-          </section>
+            <button
+              type="submit"
+              disabled={isSubmitting || isLoadingRates}
+              className="btn-cyan w-full mt-4 py-4! text-base flex justify-center"
+            >
+              {isSubmitting ? "جاري تأكيد الطلب..." : "تأكيد الطلب الآن"}
+            </button>
+          </form>
         </div>
 
-        {/* Summary */}
-        <aside className="bg-surface-alt rounded-2xl p-6 h-fit lg:sticky lg:top-32 space-y-4">
-          <h3 className="text-navy font-bold text-lg">ملخص الطلب</h3>
+        {/* ملخص الطلب وعرض الصور */}
+        <div className="lg:col-span-5 bg-surface-alt p-6 rounded-2xl">
+          <h2 className="text-xl font-bold text-navy mb-5">ملخص الطلب</h2>
 
-          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {items.map((it) => (
+          {/* ✅ إعادة إدراج قائمة المنتجات مع صورها وأفاصيلها */}
+          <div className="space-y-3 mb-6 max-h-75 overflow-auto pe-1">
+            {cartItems.map((item) => (
               <div
-                key={`${it.productId}-${it.color}-${it.size}`}
-                className="flex gap-3 items-center"
+                key={`${item.productId}-${item.color}-${item.size}`}
+                className="flex items-center gap-3 bg-white p-3 rounded-xl border border-border-subtle shadow-xs"
               >
-                <div className="relative">
-                  <img src={it.image} alt={it.name} className="h-14 w-14 rounded-lg object-cover" />
-                  <span className="absolute -top-1 -end-1 bg-navy text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {it.quantity}
-                  </span>
-                </div>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-14 h-14 rounded-lg object-cover bg-surface shrink-0"
+                />
                 <div className="flex-1 min-w-0">
-                  <p className="text-navy text-sm font-medium line-clamp-1">{it.name}</p>
-                  <p className="text-xs text-muted-foreground">{it.color} · {it.size}</p>
+                  <h4 className="text-sm font-bold text-navy line-clamp-1">{item.name}</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {item.color} · {item.size} · × {item.quantity}
+                  </p>
                 </div>
-                <div className="text-navy text-sm font-semibold">
-                  {formatPrice(it.price * it.quantity)}
+                <div className="text-navy font-bold text-sm shrink-0">
+                  {formatPrice(item.price * item.quantity)}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="border-t border-border-subtle pt-3 space-y-2 text-sm">
+          <div className="space-y-3 pt-4 border-t border-border-subtle text-sm">
             <div className="flex justify-between text-navy">
               <span>المجموع الفرعي</span>
-              <span className="font-semibold">{formatPrice(subtotal)}</span>
+              <span className="font-semibold">{formatPrice(subTotal)}</span>
             </div>
             <div className="flex justify-between text-navy">
               <span>التوصيل</span>
-              <span className="font-semibold">
-                {selectedWilaya ? formatPrice(shipping) : <span className="text-muted-foreground">اختر الولاية</span>}
-              </span>
+              <span className="font-semibold">{isFree ? "مجاني" : formatPrice(shippingCost)}</span>
             </div>
-            <div className="border-t border-border-subtle pt-2 flex justify-between text-navy font-bold text-lg">
-              <span>الإجمالي</span>
-              <span>{formatPrice(total)}</span>
+            <div className="flex justify-between text-navy text-lg font-extrabold pt-3 border-t border-border-subtle">
+              <span>المجموع الإجمالي</span>
+              <span className="text-cyan-brand">{formatPrice(total)}</span>
             </div>
           </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="btn-cyan w-full disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {submitting ? "جاري إرسال الطلب..." : "تأكيد الطلب"}
-          </button>
-          <p className="text-xs text-muted-foreground text-center">
-            بتأكيدك للطلب فأنت توافق على شروط البيع.
-          </p>
-        </aside>
-      </form>
+        </div>
+      </div>
     </div>
   );
 }
