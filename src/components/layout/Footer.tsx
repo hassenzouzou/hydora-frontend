@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Phone, Mail, Instagram, Facebook, Send } from "lucide-react";
+import { Phone, Mail, Facebook } from "lucide-react";
 import { Logo } from "./Logo";
 
 export function Footer() {
@@ -49,41 +49,29 @@ export function Footer() {
           <ul className="space-y-3 text-sm text-white/70">
             <li className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-cyan-brand shrink-0" />
-              <a href="tel:0555123456" className="hover:text-cyan-brand transition-colors">
-                0555 12 34 56
+              <a href="tel:+213779460214" className="hover:text-cyan-brand transition-colors" dir="ltr">
+                +213 779 460 214
               </a>
             </li>
             <li className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-cyan-brand shrink-0" />
               <a
-                href="mailto:contact@hydora.dz"
+                href="mailto:hydora31@gmail.com"
                 className="hover:text-cyan-brand transition-colors"
               >
-                contact@hydora.dz
+                hydora31@gmail.com
               </a>
             </li>
           </ul>
           <div className="flex items-center gap-3 mt-5">
             <a
-              href="#"
-              aria-label="Instagram"
-              className="p-2 rounded-full bg-white/10 hover:bg-cyan-brand transition-colors"
-            >
-              <Instagram className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
+              href="https://www.facebook.com/share/1EqtKQJuQe/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noreferrer"
               aria-label="Facebook"
               className="p-2 rounded-full bg-white/10 hover:bg-cyan-brand transition-colors"
             >
               <Facebook className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
-              aria-label="TikTok"
-              className="p-2 rounded-full bg-white/10 hover:bg-cyan-brand transition-colors"
-            >
-              <Send className="h-4 w-4" />
             </a>
           </div>
         </div>

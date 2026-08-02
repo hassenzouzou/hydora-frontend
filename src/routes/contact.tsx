@@ -4,9 +4,7 @@ import {
   Mail,
   MapPin,
   Clock,
-  Instagram,
   Facebook,
-  Send,
   MessageCircle,
   Headphones,
   Truck,
@@ -48,15 +46,15 @@ export const Route = createFileRoute("/contact")({
 const contactCards = [
   {
     icon: Phone,
-    title: "الهاتف",
-    lines: ["0555 12 34 56", "0770 98 76 54"],
-    action: { label: "اتصل الآن", href: "tel:0555123456" },
+    title: "الهاتف و واتساب",
+    lines: ["+213 779 460 214"],
+    action: { label: "اتصل الآن", href: "tel:+213779460214" },
   },
   {
     icon: Mail,
     title: "البريد الإلكتروني",
-    lines: ["contact@hydora.dz", "support@hydora.dz"],
-    action: { label: "راسلنا", href: "mailto:contact@hydora.dz" },
+    lines: ["hydora31@gmail.com"],
+    action: { label: "راسلنا", href: "mailto:hydora31@gmail.com" },
   },
   {
     icon: MapPin,
@@ -73,9 +71,7 @@ const contactCards = [
 ];
 
 const socialLinks = [
-  { icon: Instagram, label: "Instagram", href: "#" },
-  { icon: Facebook, label: "Facebook", href: "#" },
-  { icon: Send, label: "TikTok", href: "#" },
+  { icon: Facebook, label: "Facebook", href: "https://www.facebook.com/share/1EqtKQJuQe/?mibextid=wwXIfr" },
 ];
 
 const promises = [
@@ -118,12 +114,12 @@ function ContactPage() {
 
           {/* Quick actions */}
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <a href="tel:0555123456" className="btn-primary" aria-label="اتصل بنا">
+            <a href="tel:+213779460214" className="btn-primary" aria-label="اتصل بنا">
               <Phone className="h-4 w-4" />
               اتصل بنا الآن
             </a>
             <a
-              href="https://wa.me/213555123456"
+              href="https://wa.me/213779460214"
               target="_blank"
               rel="noreferrer"
               className="btn-cyan"
@@ -133,7 +129,7 @@ function ContactPage() {
               واتساب
             </a>
             <a
-              href="mailto:contact@hydora.dz"
+              href="mailto:hydora31@gmail.com"
               className="btn-outline-navy"
               aria-label="راسلنا عبر البريد"
             >
@@ -217,7 +213,7 @@ function InfoCard({
         <div className="flex-1 min-w-0">
           <h3 className="text-navy font-bold text-lg mb-1">{title}</h3>
           {lines.map((line) => (
-            <p key={line} className="text-navy/70 text-sm leading-relaxed">
+            <p key={line} className="text-navy/70 text-sm leading-relaxed" dir="ltr">
               {line}
             </p>
           ))}
