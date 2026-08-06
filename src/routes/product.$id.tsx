@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Minus, Plus, ShoppingCart, Check, Shield, Truck, RotateCcw } from "lucide-react";
 import { formatPrice } from "@/lib/format";
@@ -7,9 +7,8 @@ import { ProductCard, type Product } from "@/components/products/ProductCard";
 import { toast } from "sonner";
 import { getStrapiMedia } from "@/lib/utils";
 import { useProduct, useProducts } from "@/hooks/use-api";
-import { useSeoMeta } from "@/hooks/use-seo";
+import { fetchProductById } from "@/services/strapi";
 
-// ✅ 1. إنشاء واجهة آمنة لتوصيف كائنات Strapi (الألوان، المقاسات، الصور)
 interface StrapiEntity {
   name?: string;
   color_name?: string;
@@ -22,37 +21,91 @@ interface StrapiEntity {
   [key: string]: unknown;
 }
 
+function getProductMetaDetails(product: Product | null) {
+  if (!product) return null;
+
+  const title = `${product.name} — HYDORA`;
+  const description =
+    typeof product.description === "string"
+      ? product.description.slice(0, 160)
+      : "قارورة حرارية عالية الجودة من HYDORA — تصميم أنيق وأداء استثنائي.";
+
+  let rawImageUrl: string | null = null;
+
+  const imagesObj = product.images as unknown as {
+    data?: { attributes?: { url: string } }[];
+  } | null;
+  const imageObj = product.image as unknown as {
+    url?: string;
+    data?: { attributes?: { url: string } };
+  } | null;
+
+  if (imagesObj?.data?.[0]?.attributes?.url) {
+    rawImageUrl = imagesObj.data[0].attributes.url;
+  } else if (Array.isArray(product.images) && product.images[0]) {
+    const firstImg = product.images[0];
+    rawImageUrl =
+      typeof firstImg === "string" ? firstImg : (firstImg as { url?: string }).url || null;
+  } else if (product.image) {
+    if (typeof product.image === "string") {
+      rawImageUrl = product.image;
+    } else {
+      rawImageUrl = imageObj?.url || imageObj?.data?.attributes?.url || null;
+    }
+  }
+
+  const fullImageUrl = rawImageUrl ? getStrapiMedia(rawImageUrl) : "https://hydora.dz/og-image.png";
+
+  return { title, description, fullImageUrl };
+}
+
 export const Route = createFileRoute("/product/$id")({
-  head: () => ({
-    meta: [
-      { title: "تفاصيل المنتج — HYDORA" },
-      {
-        name: "description",
-        content: "اطّلع على تفاصيل هذا المنتج من HYDORA — قارورة حرارية عالية الجودة.",
-      },
-      { property: "og:title", content: "تفاصيل المنتج — HYDORA" },
-      {
-        property: "og:description",
-        content: "اطّلع على تفاصيل هذا المنتج من HYDORA — قارورة حرارية عالية الجودة.",
-      },
-      { property: "og:type", content: "product" },
-      { property: "og:url", content: "https://hydora.dz/product" },
-      { property: "og:image", content: "https://hydora.dz/og-img.png" },
-      { property: "og:site_name", content: "HYDORA" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@hydora" },
-      { name: "twitter:creator", content: "@hydora" },
-      { name: "twitter:title", content: "تفاصيل المنتج — HYDORA" },
-      {
-        name: "twitter:description",
-        content: "اطّلع على تفاصيل هذا المنتج من HYDORA.",
-      },
-      { name: "twitter:image", content: "https://hydora.dz/og-img.png" },
-    ],
-  }),
+  // Loader يعمل في الخلفية للـ SEO فقط
+  loader: async ({ params }) => {
+    try {
+      const product = await fetchProductById({ data: params.id });
+      return product as Product | null;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  head: ({ loaderData }) => {
+    const metaDetails = getProductMetaDetails(loaderData as Product | null);
+
+    if (!metaDetails || !loaderData) {
+      return {
+        meta: [{ title: "المنتج غير موجود — HYDORA" }],
+      };
+    }
+
+    const { title, description, fullImageUrl } = metaDetails;
+    const url = `https://hydora.dz/product/${(loaderData as Product).id}`;
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: fullImageUrl },
+        { property: "og:site_name", content: "HYDORA" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:site", content: "@hydora" },
+        { name: "twitter:creator", content: "@hydora" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: fullImageUrl },
+      ],
+    };
+  },
+
   component: ProductPageWrapper,
 });
 
+// ✅ أعدنا هذه الدالة لتعتمد على useProduct كما كانت في مشروعك الأصلي تماماً
 function ProductPageWrapper() {
   const { id } = Route.useParams();
   const { data: product, isLoading, error } = useProduct(id);
@@ -89,14 +142,12 @@ function ProductDetailPage({ product }: { product: Product }) {
 
   const isAvailable = product.is_available ?? true;
 
-  // ✅ 2. استخدام StrapiEntity بدلاً من any للألوان
   const safeColors = ((product.colors as unknown as StrapiEntity[]) || []).map(
     (c: StrapiEntity | string) =>
       typeof c === "string" ? c : c?.color_name || c?.name || "غير محدد",
   );
   const defaultColors = safeColors.length > 0 ? safeColors : ["الافتراضي"];
 
-  // ✅ 3. استخدام StrapiEntity بدلاً من any للمقاسات
   const safeSizes = ((product.sizes as unknown as StrapiEntity[]) || []).map(
     (s: StrapiEntity | string) =>
       typeof s === "string" ? s : s?.size_name || s?.name || "غير محدد",
@@ -118,63 +169,20 @@ function ProductDetailPage({ product }: { product: Product }) {
   const descriptionText =
     typeof product.description === "string" ? product.description : "لا يوجد وصف متاح لهذا المنتج.";
 
-  let rawImageUrl: string | null = null;
-  const imagesObj = product.images as { data?: { attributes?: { url: string } }[] } | null;
-  const imageObj = product.image as {
-    url?: string;
-    data?: { attributes?: { url: string } };
-  } | null;
-
-  if (imagesObj?.data?.[0]?.attributes?.url) {
-    rawImageUrl = imagesObj.data[0].attributes.url;
-  } else if (Array.isArray(product.images) && product.images[0]) {
-    const firstImg = product.images[0];
-    rawImageUrl =
-      typeof firstImg === "string" ? firstImg : (firstImg as { url?: string }).url || null;
-  } else if (product.image) {
-    if (typeof product.image === "string") {
-      rawImageUrl = product.image;
-    } else {
-      rawImageUrl = imageObj?.url || imageObj?.data?.attributes?.url || null;
-    }
-  }
-
-  const fullImageUrl = rawImageUrl
-    ? getStrapiMedia(rawImageUrl)
-    : "https://placehold.co/600x600/e2e8f0/1e293b?text=No+Image";
-
-  useSeoMeta({
-    title: `${product.name} — HYDORA`,
-    description:
-      typeof product.description === "string"
-        ? product.description.slice(0, 160)
-        : "قارورة حرارية عالية الجودة من HYDORA — تصميم أنيق وأداء استثنائي.",
-    ogTitle: product.name,
-    ogDescription:
-      typeof product.description === "string"
-        ? product.description.slice(0, 200)
-        : "قارورة حرارية عالية الجودة من HYDORA.",
-    ogImage: fullImageUrl,
-    ogUrl: `https://hydora.dz/product/${product.id}`,
-    ogType: "product",
-    twitterCard: "summary_large_image",
-    twitterTitle: product.name,
-    twitterDescription:
-      typeof product.description === "string"
-        ? product.description.slice(0, 200)
-        : "قارورة حرارية عالية الجودة من HYDORA.",
-    twitterImage: fullImageUrl,
-  });
+  const metaDetails = getProductMetaDetails(product);
+  const fullImageUrl =
+    metaDetails?.fullImageUrl || "https://placehold.co/600x600/e2e8f0/1e293b?text=No+Image";
 
   let galleryUrls: string[] = [];
+  const imagesObj = product.images as unknown as {
+    data?: { attributes?: { url: string } }[];
+  } | null;
 
   if (imagesObj?.data && Array.isArray(imagesObj.data)) {
-    // ✅ 4. استخدام StrapiEntity لصور Strapi v4
     galleryUrls = imagesObj.data
       .map((img: StrapiEntity) => getStrapiMedia(img.attributes?.url))
       .filter(Boolean) as string[];
   } else if (Array.isArray(product.images)) {
-    // ✅ 5. استخدام StrapiEntity لصور Strapi v5
     galleryUrls = (product.images as unknown as StrapiEntity[])
       .map((img: StrapiEntity | string) => getStrapiMedia(typeof img === "string" ? img : img?.url))
       .filter(Boolean) as string[];
