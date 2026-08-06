@@ -1,15 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Phone,
-  Mail,
-  MapPin,
-  Clock,
-  Facebook,
-  MessageCircle,
-  Headphones,
-  Truck,
-  ShieldCheck,
-} from "lucide-react";
+import { Phone, Mail, Facebook, MessageCircle, Headphones, Truck, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -17,8 +7,7 @@ export const Route = createFileRoute("/contact")({
       { title: "تواصل معنا — HYDORA" },
       {
         name: "description",
-        content:
-          "تواصل مع فريق HYDORA — الهاتف، البريد الإلكتروني، العنوان، وساعات العمل. نحن هنا لخدمتك.",
+        content: "تواصل مع فريق HYDORA — الهاتف والبريد الإلكتروني. نحن هنا لخدمتك.",
       },
       { property: "og:title", content: "تواصل معنا — HYDORA" },
       {
@@ -56,22 +45,14 @@ const contactCards = [
     lines: ["hydora31@gmail.com"],
     action: { label: "راسلنا", href: "mailto:hydora31@gmail.com" },
   },
-  {
-    icon: MapPin,
-    title: "العنوان",
-    lines: ["شارع ديدوش مراد", "الجزائر العاصمة، الجزائر 16000"],
-    action: { label: "احصل على الاتجاهات", href: "#" },
-  },
-  {
-    icon: Clock,
-    title: "ساعات العمل",
-    lines: ["السبت - الخميس: 9:00 - 18:00", "الجمعة: مغلق"],
-    action: { label: "نرد خلال 24 ساعة", href: "#" },
-  },
 ];
 
 const socialLinks = [
-  { icon: Facebook, label: "Facebook", href: "https://www.facebook.com/share/1EqtKQJuQe/?mibextid=wwXIfr" },
+  {
+    icon: Facebook,
+    label: "Facebook",
+    href: "https://www.facebook.com/share/1EqtKQJuQe/?mibextid=wwXIfr",
+  },
 ];
 
 const promises = [
@@ -140,23 +121,26 @@ function ContactPage() {
         </div>
       </section>
 
-      {/* Contact grid */}
+      {/* Contact section */}
       <section className="container-hydora py-16 md:py-20">
-        <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Info cards */}
-          <div className="lg:col-span-2">
-            <div className="grid sm:grid-cols-2 gap-5">
-              {contactCards.map((card) => (
-                <InfoCard key={card.title} {...card} />
-              ))}
-            </div>
+        <div className="max-w-4xl mx-auto text-center">
+          <span className="inline-block px-4 py-1.5 bg-white text-cyan-brand text-xs font-bold rounded-full mb-4 shadow-brand-sm">
+            تواصل معنا
+          </span>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-navy">نحن هنا لخدمتك</h2>
+          <p className="mt-3 text-navy/70 max-w-xl mx-auto">
+            لأي استفسار أو مساعدة، فريق HYDORA جاهز للرد عليك. اختر الطريقة الأنسب للتواصل معنا.
+          </p>
+
+          <div className="grid sm:grid-cols-2 gap-5 mt-10 max-w-2xl mx-auto">
+            {contactCards.map((card) => (
+              <InfoCard key={card.title} {...card} />
+            ))}
           </div>
 
-          {/* Sidebar: location + social */}
-          <aside className="space-y-6">
-            <LocationCard />
+          <div className="mt-10 max-w-md mx-auto">
             <SocialCard />
-          </aside>
+          </div>
         </div>
       </section>
 
@@ -226,50 +210,6 @@ function InfoCard({
         >
           {action.label}
           <span aria-hidden="true">←</span>
-        </a>
-      </div>
-    </div>
-  );
-}
-
-function LocationCard() {
-  return (
-    <div className="relative overflow-hidden rounded-2xl bg-navy text-white p-6">
-      <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <svg
-          className="w-full h-full"
-          viewBox="0 0 400 300"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M50 220 C80 180, 120 200, 160 170 C200 140, 240 160, 280 130 C320 100, 360 120, 400 90"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeDasharray="8 6"
-            className="text-cyan-brand"
-          />
-          <circle cx="160" cy="170" r="6" className="fill-cyan-brand" />
-          <circle cx="280" cy="130" r="4" className="fill-white/50" />
-          <circle cx="320" cy="110" r="4" className="fill-white/50" />
-        </svg>
-      </div>
-      <div className="relative">
-        <div className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white/10 text-cyan-brand mb-4">
-          <MapPin className="h-5 w-5" />
-        </div>
-        <h3 className="font-bold text-lg mb-2">موقع المتجر</h3>
-        <p className="text-white/80 text-sm leading-relaxed mb-4">
-          شارع ديدوش مراد
-          <br />
-          الجزائر العاصمة، الجزائر 16000
-        </p>
-        <a
-          href="#"
-          className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-white/10 hover:bg-cyan-brand text-white text-sm font-semibold transition-colors"
-        >
-          <MapPin className="h-4 w-4" />
-          عرض الموقع على الخريطة
         </a>
       </div>
     </div>
