@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useCartStore } from "@/store/cart-store";
+import { usePendingPurchaseStore } from "@/store/pending-purchase-store";
 import { useOrderStore } from "@/store/order-store";
 import { formatPrice } from "@/lib/format";
 import { toast } from "sonner";
@@ -64,8 +64,8 @@ export const Route = createFileRoute("/checkout")({
 
 function CheckoutPage() {
   const navigate = useNavigate();
-  const cartItems = useCartStore((s) => s.items);
-  const clearCart = useCartStore((s) => s.clearCart);
+  const pendingItem = usePendingPurchaseStore((s) => s.pendingItem);
+  const clearPendingItem = usePendingPurchaseStore((s) => s.clearPendingItem);
 
   // ✅ التعامل مع الستور بطريقة آمنة بدون any
   const setOrder = useOrderStore((s) => {
@@ -106,7 +106,9 @@ function CheckoutPage() {
   const isFree =
     selectedWilayaObj?.attributes?.is_free_delivery ?? selectedWilayaObj?.is_free_delivery ?? false;
 
-  const subTotal = cartItems.reduce(
+  const checkoutItems = pendingItem ? [pendingItem] : [];
+
+  const subTotal = checkoutItems.reduce(
     (acc, item) => acc + Number(item.price) * Number(item.quantity),
     0,
   );
@@ -119,10 +121,13 @@ function CheckoutPage() {
 
   const total = subTotal + shippingCost;
 
-  if (cartItems.length === 0) {
+  if (checkoutItems.length === 0) {
     return (
       <div className="container-hydora py-32 text-center min-h-[60vh] flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-navy mb-4">سلة المشتريات فارغة</h2>
+        <h2 className="text-2xl font-bold text-navy mb-4">لا توجد منتجات محددة</h2>
+        <p className="text-muted-foreground mb-6">
+          اختر منتجاً من المتجر للمتابعة إلى إتمام الطلب.
+        </p>
         <button onClick={() => navigate({ to: "/products" })} className="btn-cyan">
           تسوق الآن
         </button>
@@ -148,7 +153,7 @@ function CheckoutPage() {
         delivery_cost: shippingCost,
         total_amount: total,
         order_status: "new",
-        ordered_items: cartItems.map((item) => ({
+        ordered_items: checkoutItems.map((item) => ({
           product_id: item.productId,
           name: item.name,
           quantity: Number(item.quantity),
@@ -168,7 +173,7 @@ function CheckoutPage() {
         setOrder({
           id: createdOrderId,
           createdAt: new Date().toISOString(),
-          items: cartItems,
+          items: checkoutItems,
           customer: {
             fullName: formData.fullName,
             phone: formData.phone,
@@ -182,7 +187,7 @@ function CheckoutPage() {
         });
       }
 
-      clearCart();
+      clearPendingItem();
       toast.success("تم تأكيد طلبك بنجاح!");
       navigate({ to: "/order-success" });
     } catch {
@@ -294,7 +299,7 @@ function CheckoutPage() {
 
           {/* ✅ إعادة إدراج قائمة المنتجات مع صورها وأفاصيلها */}
           <div className="space-y-3 mb-6 max-h-75 overflow-auto pe-1">
-            {cartItems.map((item) => (
+            {checkoutItems.map((item) => (
               <div
                 key={`${item.productId}-${item.color}-${item.size}`}
                 className="flex items-center gap-3 bg-white p-3 rounded-xl border border-border-subtle shadow-xs"

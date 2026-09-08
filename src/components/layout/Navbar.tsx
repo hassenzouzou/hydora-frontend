@@ -1,8 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart, Menu, ChevronDown } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "./Logo";
-import { useCartStore } from "@/store/cart-store";
 import { useCategories } from "@/hooks/use-api";
 
 interface Category {
@@ -15,8 +14,6 @@ interface Category {
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
-  const totalItems = useCartStore((s) => s.getTotalItems());
-  const openDrawer = useCartStore((s) => s.openDrawer);
 
   const { data: categories } = useCategories();
 
@@ -109,18 +106,6 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <Logo />
-          <button
-            onClick={openDrawer}
-            aria-label="السلة"
-            className="relative p-2 rounded-lg hover:bg-cyan-light text-navy transition-colors"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {totalItems > 0 && (
-              <span className="absolute -top-1 -inset-e-1 bg-cyan-brand text-white text-[10px] font-bold rounded-full min-w-4.5 h-4.5 px-1 flex items-center justify-center shadow-sm">
-                {totalItems}
-              </span>
-            )}
-          </button>
         </div>
       </div>
 

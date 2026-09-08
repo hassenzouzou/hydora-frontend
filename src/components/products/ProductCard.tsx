@@ -1,7 +1,7 @@
-import { Link } from "@tanstack/react-router";
-import { ShoppingCart } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Zap } from "lucide-react";
 import { formatPrice } from "@/lib/format";
-import { useCartStore } from "@/store/cart-store";
+import { usePendingPurchaseStore } from "@/store/pending-purchase-store";
 import { toast } from "sonner";
 import { getStrapiMedia } from "@/lib/utils";
 
@@ -33,8 +33,8 @@ export interface Product {
 }
 
 export function ProductCard({ product }: { product: Product }) {
-  const addItem = useCartStore((s) => s.addItem);
-  const openDrawer = useCartStore((s) => s.openDrawer);
+  const navigate = useNavigate();
+  const setPendingItem = usePendingPurchaseStore((s) => s.setPendingItem);
 
   const isAvailable = product.is_available ?? true;
 
@@ -70,11 +70,10 @@ export function ProductCard({ product }: { product: Product }) {
     ? getStrapiMedia(rawImageUrl)
     : "https://placehold.co/600x600/e2e8f0/1e293b?text=No+Image";
 
-  const handleQuickAdd = (e: React.MouseEvent) => {
+  const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!isAvailable) return;
 
-    // ✅ 3. استخراج اللون والمقاس بطريقة آمنة ترضي TypeScript
     const firstColor = product.colors?.[0];
     const safeColor = firstColor
       ? typeof firstColor === "string"
@@ -89,7 +88,7 @@ export function ProductCard({ product }: { product: Product }) {
         : firstSize.size_name || firstSize.name || "الافتراضي"
       : "الافتراضي";
 
-    addItem({
+    setPendingItem({
       productId: Number(product.id),
       name: product.name,
       price: product.price,
@@ -99,8 +98,7 @@ export function ProductCard({ product }: { product: Product }) {
       size: safeSize,
     });
 
-    toast.success("تمت الإضافة للسلة");
-    openDrawer();
+    navigate({ to: "/checkout" });
   };
 
   return (
@@ -143,12 +141,12 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
 
       <button
-        onClick={handleQuickAdd}
+        onClick={handleBuyNow}
         disabled={!isAvailable}
-        aria-label="أضف للسلة"
+        aria-label="شراء الآن"
         className="absolute bottom-3 inset-e-3 bg-cyan-brand hover:bg-cyan-dark disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-full p-2.5 shadow-lg transition-all hover:scale-110"
       >
-        <ShoppingCart className="h-4 w-4" />
+        <Zap className="h-4 w-4" />
       </button>
     </Link>
   );

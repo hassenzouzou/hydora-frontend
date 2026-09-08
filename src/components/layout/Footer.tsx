@@ -49,7 +49,11 @@ export function Footer() {
           <ul className="space-y-3 text-sm text-white/70">
             <li className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-cyan-brand shrink-0" />
-              <a href="tel:+213779460214" className="hover:text-cyan-brand transition-colors" dir="ltr">
+              <a
+                href="tel:+213779460214"
+                className="hover:text-cyan-brand transition-colors"
+                dir="ltr"
+              >
                 +213 779 460 214
               </a>
             </li>

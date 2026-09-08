@@ -1,10 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Minus, Plus, ShoppingCart, Check, Shield, Truck, RotateCcw } from "lucide-react";
+import { Minus, Plus, Zap, Check, Shield, Truck, RotateCcw } from "lucide-react";
 import { formatPrice } from "@/lib/format";
-import { useCartStore } from "@/store/cart-store";
+import { usePendingPurchaseStore } from "@/store/pending-purchase-store";
 import { ProductCard, type Product } from "@/components/products/ProductCard";
-import { toast } from "sonner";
 import { getStrapiMedia } from "@/lib/utils";
 import { useProduct, useProducts } from "@/hooks/use-api";
 import { fetchProductById } from "@/services/strapi";
@@ -137,8 +136,8 @@ function ProductPageWrapper() {
 }
 
 function ProductDetailPage({ product }: { product: Product }) {
-  const addItem = useCartStore((s) => s.addItem);
-  const openDrawer = useCartStore((s) => s.openDrawer);
+  const navigate = useNavigate();
+  const setPendingItem = usePendingPurchaseStore((s) => s.setPendingItem);
 
   const isAvailable = product.is_available ?? true;
 
@@ -201,9 +200,9 @@ function ProductDetailPage({ product }: { product: Product }) {
     return allProducts.filter((p: Product) => String(p.id) !== String(product.id)).slice(0, 4);
   }, [allProducts, product.id]);
 
-  const handleAdd = () => {
+  const handleBuyNow = () => {
     if (!isAvailable) return;
-    addItem({
+    setPendingItem({
       productId: Number(product.id),
       name: product.name,
       price: product.price,
@@ -212,8 +211,7 @@ function ProductDetailPage({ product }: { product: Product }) {
       color,
       size,
     });
-    toast.success("تمت الإضافة للسلة");
-    openDrawer();
+    navigate({ to: "/checkout" });
   };
 
   return (
@@ -344,12 +342,12 @@ function ProductDetailPage({ product }: { product: Product }) {
               </button>
             </div>
             <button
-              onClick={handleAdd}
+              onClick={handleBuyNow}
               disabled={!isAvailable}
               className="btn-cyan flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <ShoppingCart className="h-5 w-5" />
-              أضف للسلة
+              <Zap className="h-5 w-5" />
+              شراء الآن
             </button>
           </div>
 

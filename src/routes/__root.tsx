@@ -13,7 +13,6 @@ import appCss from "../styles.css?url";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { CartDrawer } from "@/components/cart/CartDrawer";
 
 function NotFoundComponent() {
   return (
@@ -144,7 +143,6 @@ function RootComponent() {
         </main>
         <Footer />
       </div>
-      <CartDrawer />
       <Toaster
         position="top-center"
         richColors
