@@ -1,12 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Minus, Plus, Zap, Check, Shield, Truck, RotateCcw } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 import { usePendingPurchaseStore } from "@/store/pending-purchase-store";
-import { ProductCard, type Product } from "@/components/products/ProductCard";
+import { useOrderStore } from "@/store/order-store";
+import { type Product } from "@/components/products/ProductCard";
 import { getStrapiMedia } from "@/lib/utils";
-import { useProduct, useProducts } from "@/hooks/use-api";
+import { useProduct } from "@/hooks/use-api";
 import { fetchProductById } from "@/services/strapi";
+import { getDeliveryRates, createOrder } from "@/services/api";
+import { toast } from "sonner";
 
 interface StrapiEntity {
   name?: string;
@@ -17,6 +21,24 @@ interface StrapiEntity {
     url?: string;
     name?: string;
   };
+  [key: string]: unknown;
+}
+
+interface DeliveryRateAttributes {
+  wilaya_name: string;
+  home_delivery_cost: number;
+  desk_delivery_cost: number;
+  is_free_delivery: boolean;
+  [key: string]: unknown;
+}
+
+interface DeliveryRateItem {
+  id: number | string;
+  attributes?: DeliveryRateAttributes;
+  wilaya_name?: string;
+  home_delivery_cost?: number;
+  desk_delivery_cost?: number;
+  is_free_delivery?: boolean;
   [key: string]: unknown;
 }
 
@@ -138,6 +160,7 @@ function ProductPageWrapper() {
 function ProductDetailPage({ product }: { product: Product }) {
   const navigate = useNavigate();
   const setPendingItem = usePendingPurchaseStore((s) => s.setPendingItem);
+  const setOrder = useOrderStore((s) => s.setLastOrder);
 
   const isAvailable = product.is_available ?? true;
 
@@ -172,6 +195,40 @@ function ProductDetailPage({ product }: { product: Product }) {
   const fullImageUrl =
     metaDetails?.fullImageUrl || "https://placehold.co/600x600/e2e8f0/1e293b?text=No+Image";
 
+  // Ensure page title and basic meta tags update on client when product data is available
+  useEffect(() => {
+    if (!product) return;
+    const title = `${product.name} — HYDORA`;
+    document.title = title;
+
+    const setMeta = (name: string, content: string) => {
+      let el = document.querySelector(`meta[name="${name}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("name", name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    setMeta("description", typeof product.description === "string" ? product.description : "");
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute("content", title);
+    }
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) {
+      ogDesc.setAttribute(
+        "content",
+        typeof product.description === "string" ? product.description : "",
+      );
+    }
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage) {
+      ogImage.setAttribute("content", fullImageUrl);
+    }
+  }, [product, metaDetails, fullImageUrl]);
+
   let galleryUrls: string[] = [];
   const imagesObj = product.images as unknown as {
     data?: { attributes?: { url: string } }[];
@@ -194,11 +251,7 @@ function ProductDetailPage({ product }: { product: Product }) {
   galleryUrls = Array.from(new Set(galleryUrls));
   const displayImage = activeImage || galleryUrls[0];
 
-  const { data: allProducts } = useProducts();
-  const related = useMemo(() => {
-    if (!allProducts) return [];
-    return allProducts.filter((p: Product) => String(p.id) !== String(product.id)).slice(0, 4);
-  }, [allProducts, product.id]);
+  // related products removed for one-page direct checkout flow
 
   const handleBuyNow = () => {
     if (!isAvailable) return;
@@ -211,7 +264,140 @@ function ProductDetailPage({ product }: { product: Product }) {
       color,
       size,
     });
-    navigate({ to: "/checkout" });
+    // Scroll to embedded direct-checkout form instead of navigating away
+    const el = document.getElementById("direct-checkout");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigate({ to: "/checkout" });
+    }
+  };
+
+  // --- Direct Checkout form state (embedded) ---
+  const { data: ratesResponse, isLoading: isLoadingRates } = useQuery({
+    queryKey: ["deliveryRates"],
+    queryFn: getDeliveryRates,
+  });
+
+  const wilayasList = ratesResponse?.data || [];
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    wilaya: (wilayasList?.[0]?.attributes?.wilaya_name as string) || "الجزائر",
+    baladiya: "",
+    deliveryType: "home",
+  });
+
+  const checkoutItems = [
+    {
+      productId: Number(product.id),
+      name: product.name,
+      price: product.price,
+      image: fullImageUrl,
+      quantity: qty,
+      color,
+      size,
+    },
+  ];
+
+  const subTotal = checkoutItems.reduce(
+    (acc, item) => acc + Number(item.price) * Number(item.quantity),
+    0,
+  );
+
+  const selectedWilayaObj = wilayasList.find((w: DeliveryRateItem) => {
+    const name = w.attributes?.wilaya_name || w.wilaya_name;
+    return name === formData.wilaya;
+  });
+
+  const homeCost =
+    selectedWilayaObj?.attributes?.home_delivery_cost ?? selectedWilayaObj?.home_delivery_cost ?? 0;
+  const deskCost =
+    selectedWilayaObj?.attributes?.desk_delivery_cost ?? selectedWilayaObj?.desk_delivery_cost ?? 0;
+  const isFree =
+    selectedWilayaObj?.attributes?.is_free_delivery ?? selectedWilayaObj?.is_free_delivery ?? false;
+
+  const shippingCost = (() => {
+    if (isFree) return 0;
+    if (formData.deliveryType === "home") return Number(homeCost);
+    return Number(deskCost);
+  })();
+  const total = subTotal + shippingCost;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const orderPayload = {
+        client_name: formData.fullName,
+        phone: formData.phone,
+        wilaya: formData.wilaya,
+        baladiya: formData.baladiya,
+        delivery_type: formData.deliveryType,
+        delivery_cost: shippingCost,
+        total_amount: total,
+        order_status: "new",
+        ordered_items: checkoutItems.map((item) => ({
+          product_id: item.productId,
+          name: item.name,
+          quantity: Number(item.quantity),
+          price: Number(item.price),
+          color: item.color,
+          size: item.size,
+        })),
+      };
+
+      const response = (await createOrder(orderPayload)) as {
+        data?: { id?: number | string };
+        id?: number | string;
+      };
+      const createdOrderId = response?.data?.id || response?.id || "0000";
+
+      if (setOrder) {
+        setOrder({
+          id: String(createdOrderId),
+          createdAt: new Date().toISOString(),
+          items: checkoutItems,
+          customer: {
+            fullName: formData.fullName,
+            phone: formData.phone,
+            wilayaCode: 0,
+            wilayaName: formData.wilaya,
+            commune: formData.baladiya,
+            deliveryType: ((): "home" | "stopdesk" => {
+              return formData.deliveryType === "home" ? "home" : "stopdesk";
+            })(),
+          },
+          subtotal: subTotal,
+          shipping: shippingCost,
+          total: total,
+        });
+      }
+
+      setPendingItem({
+        productId: Number(product.id),
+        name: product.name,
+        price: product.price,
+        image: fullImageUrl,
+        quantity: qty,
+        color,
+        size,
+      });
+
+      toast.success("تم تأكيد طلبك بنجاح!");
+      navigate({ to: "/order-success" });
+    } catch (err) {
+      console.error(err);
+      toast.error("حدث خطأ أثناء إرسال الطلب، يرجى المحاولة لاحقاً.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -370,21 +556,147 @@ function ProductDetailPage({ product }: { product: Product }) {
         </div>
       </div>
 
-      {related.length > 0 && (
-        <section className="mt-16">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-navy">منتجات مشابهة</h2>
-            <Link to="/products" className="text-sm text-cyan-brand hover:underline">
-              عرض الكل
-            </Link>
+      {/* Related products removed: product page now shows only product + direct checkout form */}
+      {/* Embedded Direct Checkout Form */}
+      <section id="direct-checkout" className="mt-12">
+        <div className="grid lg:grid-cols-12 gap-8 items-start">
+          <div className="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-border-subtle">
+            <h2 className="text-xl font-bold text-navy mb-5">إتمام الطلب مباشرة</h2>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-navy mb-2">الاسم الكامل</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  required
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm"
+                  placeholder="أدخل اسمك الكامل"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-navy mb-2">رقم الهاتف</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  dir="ltr"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm text-end"
+                  placeholder="0555 00 00 00"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-navy mb-2">الولاية</label>
+                  <select
+                    name="wilaya"
+                    value={formData.wilaya}
+                    onChange={handleChange}
+                    className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm"
+                    disabled={isLoadingRates}
+                  >
+                    {isLoadingRates ? (
+                      <option>جاري تحميل الولايات...</option>
+                    ) : (
+                      wilayasList.map((w: DeliveryRateItem) => {
+                        const name = w.attributes?.wilaya_name || w.wilaya_name || "";
+                        return (
+                          <option key={w.id} value={name}>
+                            {name}
+                          </option>
+                        );
+                      })
+                    )}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-navy mb-2">البلدية</label>
+                  <input
+                    type="text"
+                    name="baladiya"
+                    required
+                    value={formData.baladiya}
+                    onChange={handleChange}
+                    className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm"
+                    placeholder="الحي / البلدية"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-navy mb-2">نوع التوصيل</label>
+                <select
+                  name="deliveryType"
+                  value={formData.deliveryType}
+                  onChange={handleChange}
+                  className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm"
+                >
+                  <option value="home">
+                    توصيل للمنزل ({isFree ? "مجاني" : formatPrice(Number(homeCost))})
+                  </option>
+                  <option value="desk">
+                    توصيل للمكتب / نقطة استلام ({isFree ? "مجاني" : formatPrice(Number(deskCost))})
+                  </option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                disabled={isSubmitting || isLoadingRates}
+                className="btn-cyan w-full mt-4 py-4! text-base flex justify-center"
+              >
+                {isSubmitting ? "جاري تأكيد الطلب..." : "تأكيد الطلب الآن"}
+              </button>
+            </form>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {related.map((p: Product) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
+
+          <div className="lg:col-span-5 bg-surface-alt p-6 rounded-2xl">
+            <h2 className="text-xl font-bold text-navy mb-5">ملخص الطلب</h2>
+
+            <div className="space-y-3 mb-6 max-h-75 overflow-auto pe-1">
+              {checkoutItems.map((item) => (
+                <div
+                  key={`${item.productId}-${item.color}-${item.size}`}
+                  className="flex items-center gap-3 bg-white p-3 rounded-xl border border-border-subtle shadow-xs"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-14 h-14 rounded-lg object-cover bg-surface shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-bold text-navy line-clamp-1">{item.name}</h4>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {item.color} · {item.size} · × {item.quantity}
+                    </p>
+                  </div>
+                  <div className="text-navy font-bold text-sm shrink-0">
+                    {formatPrice(item.price * item.quantity)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-3 pt-4 border-t border-border-subtle text-sm">
+              <div className="flex justify-between text-navy">
+                <span>المجموع الفرعي</span>
+                <span className="font-semibold">{formatPrice(subTotal)}</span>
+              </div>
+              <div className="flex justify-between text-navy">
+                <span>التوصيل</span>
+                <span className="font-semibold">
+                  {isFree ? "مجاني" : formatPrice(shippingCost)}
+                </span>
+              </div>
+              <div className="flex justify-between text-navy text-lg font-extrabold pt-3 border-t border-border-subtle">
+                <span>المجموع الإجمالي</span>
+                <span className="text-cyan-brand">{formatPrice(total)}</span>
+              </div>
+            </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </div>
   );
 }
