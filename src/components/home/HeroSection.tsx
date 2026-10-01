@@ -3,9 +3,19 @@ import { Snowflake, Flame, ShieldCheck, Droplets, ArrowLeft } from "lucide-react
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-cover bg-no-repeat bg-position-[center_25%] bg-[url('/hero-bg-mobile.png')] lg:bg-center lg:bg-[url('/hero-bg.png')] min-h-[85vh] sm:min-h-[90vh] lg:h-224.5 w-full max-w-[1862px] mx-auto flex items-center">
-      <div className="container-hydora py-12 sm:py-16 lg:py-24 w-full">
-        {/* النص */}
+    <section className="relative overflow-hidden min-h-[85vh] sm:min-h-[90vh] lg:h-224.5 w-full max-w-[1862px] mx-auto flex items-center">
+      <picture className="absolute inset-0 z-0 h-full w-full">
+        <source media="(min-width: 1024px)" srcSet="/hero-bg.webp" type="image/webp" />
+
+        <img
+          src="/hero-bg-mobile.webp"
+          alt="قوارير حرارية عالية الجودة"
+          className="h-full w-full object-cover object-[center_25%] lg:object-center"
+          fetchPriority="high"
+        />
+      </picture>
+
+      <div className="container-hydora relative z-10 py-12 sm:py-16 lg:py-24 w-full">
         <div className="space-y-5 sm:space-y-6 text-center lg:text-start">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.2] sm:leading-[1.15] text-navy">
             ترطيب يدوم
