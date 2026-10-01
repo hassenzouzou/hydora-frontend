@@ -46,14 +46,30 @@ export function ProductCard({ product }: { product: Product }) {
         : "عام";
 
   let rawImageUrl: string | null = null;
-  const imagesObj = product.images as { data?: { attributes?: { url: string } }[] } | null;
-  const imageObj = product.image as {
-    url?: string;
-    data?: { attributes?: { url: string } };
+
+  const imagesObj = product.images as {
+    data?: {
+      attributes?: {
+        url: string;
+        formats?: { small?: { url: string }; thumbnail?: { url: string } };
+      };
+    }[];
   } | null;
 
-  if (imagesObj?.data?.[0]?.attributes?.url) {
-    rawImageUrl = imagesObj.data[0].attributes.url;
+  const imageObj = product.image as {
+    url?: string;
+    data?: {
+      attributes?: {
+        url: string;
+        formats?: { small?: { url: string }; thumbnail?: { url: string } };
+      };
+    };
+  } | null;
+
+  // جلب النسخة المصغرة إن وجدت
+  if (imagesObj?.data?.[0]?.attributes) {
+    const attrs = imagesObj.data[0].attributes;
+    rawImageUrl = attrs.formats?.small?.url || attrs.formats?.thumbnail?.url || attrs.url;
   } else if (Array.isArray(product.images) && product.images[0]) {
     const firstImg = product.images[0];
     rawImageUrl =
@@ -62,7 +78,13 @@ export function ProductCard({ product }: { product: Product }) {
     if (typeof product.image === "string") {
       rawImageUrl = product.image;
     } else {
-      rawImageUrl = imageObj?.url || imageObj?.data?.attributes?.url || null;
+      const attrs = imageObj?.data?.attributes;
+      rawImageUrl =
+        attrs?.formats?.small?.url ||
+        attrs?.formats?.thumbnail?.url ||
+        imageObj?.url ||
+        attrs?.url ||
+        null;
     }
   }
 
@@ -129,6 +151,9 @@ export function ProductCard({ product }: { product: Product }) {
           src={fullImageUrl}
           alt={product.name}
           loading="lazy"
+          decoding="async"
+          width="300"
+          height="300"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       </div>
