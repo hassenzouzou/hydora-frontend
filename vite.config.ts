@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [tanstackStart(), nitro(), react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   build: {
