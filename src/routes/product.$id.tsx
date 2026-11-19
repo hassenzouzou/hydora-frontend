@@ -13,6 +13,7 @@ import { getDeliveryRates, createOrder } from "@/services/api";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
+import { WilayaSelect } from "@/components/ui/wilaya-select";
 
 interface StrapiEntity {
   name?: string;
@@ -626,26 +627,17 @@ function ProductDetailPage({ product }: { product: Product }) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-navy mb-2">الولاية</label>
-                  <select
-                    name="wilaya"
-                    value={formData.wilaya}
-                    onChange={handleChange}
-                    className="w-full bg-surface px-4 py-3 rounded-xl border focus:border-cyan-brand text-sm"
+                  <WilayaSelect
                     disabled={isLoadingRates}
-                  >
-                    {isLoadingRates ? (
-                      <option>جاري تحميل الولايات...</option>
-                    ) : (
-                      wilayasList.map((w: DeliveryRateItem) => {
-                        const name = w.attributes?.wilaya_name || w.wilaya_name || "";
-                        return (
-                          <option key={w.id} value={name}>
-                            {name}
-                          </option>
-                        );
-                      })
-                    )}
-                  </select>
+                    value={isLoadingRates ? "جاري تحميل الولايات..." : formData.wilaya}
+                    options={wilayasList.map((w: DeliveryRateItem) => ({
+                      id: w.id,
+                      name: w.attributes?.wilaya_name || w.wilaya_name || "",
+                    }))}
+                    onChange={(selectedName) =>
+                      setFormData((prev) => ({ ...prev, wilaya: selectedName }))
+                    }
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-navy mb-2">البلدية</label>
