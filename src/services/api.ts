@@ -21,11 +21,28 @@ export const apiClient = async (endpoint: string, options: RequestInit = {}) => 
   return response.json();
 };
 
+export interface DeliveryRateItem {
+  id: number | string;
+  attributes?: {
+    wilaya_name: string;
+    home_delivery_cost: number;
+    desk_delivery_cost: number;
+    is_free_delivery: boolean;
+    [key: string]: unknown;
+  };
+  wilaya_name?: string;
+  home_delivery_cost?: number;
+  desk_delivery_cost?: number;
+  is_free_delivery?: boolean;
+  [key: string]: unknown;
+}
+
+export const getDeliveryRates = () =>
+  apiClient("/delivery-rates?pagination[limit]=100&sort=wilaya_name:asc");
 export const getCategories = () => apiClient("/categories?populate=*");
 export const getProducts = () => apiClient("/products?populate=*");
 export const getProduct = (id: string) => apiClient(`/products/${id}?populate=*`);
 export const getColors = () => apiClient("/colors");
-export const getDeliveryRates = () => apiClient("/delivery-rates?pagination[limit]=60");
 
 export const createOrder = (orderData: Record<string, unknown>) => {
   return apiClient("/orders", {

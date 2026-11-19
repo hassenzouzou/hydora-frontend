@@ -309,10 +309,21 @@ function ProductDetailPage({ product }: { product: Product }) {
     0,
   );
 
-  const selectedWilayaObj = wilayasList.find((w: DeliveryRateItem) => {
-    const name = w.attributes?.wilaya_name || w.wilaya_name;
-    return name === formData.wilaya;
-  });
+  const selectedWilayaObj: DeliveryRateItem | undefined = wilayasList.find(
+    (w: DeliveryRateItem) => {
+      const name = w.attributes?.wilaya_name || w.wilaya_name;
+      return name === formData.wilaya;
+    },
+  );
+
+  useEffect(() => {
+    if (wilayasList.length > 0 && !selectedWilayaObj) {
+      const firstName = wilayasList[0].attributes?.wilaya_name || wilayasList[0].wilaya_name || "";
+      if (firstName) {
+        setFormData((prev) => ({ ...prev, wilaya: firstName }));
+      }
+    }
+  }, [wilayasList, selectedWilayaObj]);
 
   const homeCost =
     selectedWilayaObj?.attributes?.home_delivery_cost ?? selectedWilayaObj?.home_delivery_cost ?? 0;
@@ -661,7 +672,7 @@ function ProductDetailPage({ product }: { product: Product }) {
                     توصيل للمنزل ({isFree ? "مجاني" : formatPrice(Number(homeCost))})
                   </option>
                   <option value="desk">
-                    توصيل للمكتب / نقطة استلام ({isFree ? "مجاني" : formatPrice(Number(deskCost))})
+                    توصيل للمكتب ({isFree ? "مجاني" : formatPrice(Number(deskCost))})
                   </option>
                 </select>
               </div>

@@ -279,7 +279,7 @@ function CheckoutPage() {
                   توصيل للمنزل ({isFree ? "مجاني" : formatPrice(Number(homeCost))})
                 </option>
                 <option value="desk">
-                  توصيل للمكتب / نقطة استلام ({isFree ? "مجاني" : formatPrice(Number(deskCost))})
+                  توصيل للمكتب ({isFree ? "مجاني" : formatPrice(Number(deskCost))})
                 </option>
               </select>
             </div>
