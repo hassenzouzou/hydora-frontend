@@ -18,7 +18,7 @@ export type MockProduct = {
   category: string;
   categorySlug: string;
   colors: string[];
-  sizes: string[];
+  size_variants: { size_name: string; price: number }[];
 };
 
 // Reusable product image URLs (Unsplash / picsum placeholders — replace with Strapi CDN later)
@@ -85,5 +85,8 @@ export const mockProducts: MockProduct[] = productNames.map((name, i) => ({
   category: mockCategories[i % mockCategories.length].name,
   categorySlug: mockCategories[i % mockCategories.length].slug,
   colors: colorPool.slice(0, 3 + (i % 3)),
-  sizes: sizePool.slice(0, 2 + (i % 3)),
+  size_variants: sizePool.slice(0, 2 + (i % 3)).map((size_name, index) => ({
+    size_name,
+    price: 1500 + i * 350 + index * 100,
+  })),
 }));

@@ -25,7 +25,6 @@ export const getCategories = () => apiClient("/categories?populate=*");
 export const getProducts = () => apiClient("/products?populate=*");
 export const getProduct = (id: string) => apiClient(`/products/${id}?populate=*`);
 export const getColors = () => apiClient("/colors");
-export const getSizes = () => apiClient("/sizes");
 export const getDeliveryRates = () => apiClient("/delivery-rates?pagination[limit]=60");
 
 export const createOrder = (orderData: Record<string, unknown>) => {

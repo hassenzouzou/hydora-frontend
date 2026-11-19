@@ -11,6 +11,8 @@ import { useProduct } from "@/hooks/use-api";
 import { fetchProductById } from "@/services/strapi";
 import { getDeliveryRates, createOrder } from "@/services/api";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 
 interface StrapiEntity {
   name?: string;
@@ -170,14 +172,14 @@ function ProductDetailPage({ product }: { product: Product }) {
   );
   const defaultColors = safeColors.length > 0 ? safeColors : ["الافتراضي"];
 
-  const safeSizes = ((product.sizes as unknown as StrapiEntity[]) || []).map(
-    (s: StrapiEntity | string) =>
-      typeof s === "string" ? s : s?.size_name || s?.name || "غير محدد",
-  );
+  const sizeVariants = product.size_variants || [];
+  const safeSizes = sizeVariants.map((v) => v.size_name);
   const defaultSizes = safeSizes.length > 0 ? safeSizes : ["الافتراضي"];
 
   const [color, setColor] = useState(defaultColors[0]);
   const [size, setSize] = useState(defaultSizes[0]);
+  const selectedVariant = sizeVariants.find((v) => v.size_name === size);
+  const activePrice = selectedVariant?.price ?? product.price;
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState<string | null>(null);
 
@@ -258,7 +260,7 @@ function ProductDetailPage({ product }: { product: Product }) {
     setPendingItem({
       productId: Number(product.id),
       name: product.name,
-      price: product.price,
+      price: activePrice,
       image: fullImageUrl,
       quantity: qty,
       color,
@@ -294,7 +296,7 @@ function ProductDetailPage({ product }: { product: Product }) {
     {
       productId: Number(product.id),
       name: product.name,
-      price: product.price,
+      price: activePrice,
       image: fullImageUrl,
       quantity: qty,
       color,
@@ -383,7 +385,7 @@ function ProductDetailPage({ product }: { product: Product }) {
       setPendingItem({
         productId: Number(product.id),
         name: product.name,
-        price: product.price,
+        price: activePrice,
         image: fullImageUrl,
         quantity: qty,
         color,
@@ -451,7 +453,7 @@ function ProductDetailPage({ product }: { product: Product }) {
           <h1 className="text-2xl md:text-3xl font-extrabold text-navy mt-3">{product.name}</h1>
 
           <div className="mt-5 flex items-center gap-3">
-            <span className="text-3xl font-extrabold text-navy">{formatPrice(product.price)}</span>
+            <span className="text-3xl font-extrabold text-navy">{formatPrice(activePrice)}</span>
             <span
               className={`text-xs font-bold px-2 py-1 rounded-full ${
                 isAvailable ? "bg-cyan-light text-navy" : "bg-red-100 text-red-600"
@@ -461,7 +463,29 @@ function ProductDetailPage({ product }: { product: Product }) {
             </span>
           </div>
 
-          <p className="text-muted-foreground text-sm mt-5 leading-relaxed">{descriptionText}</p>
+          <div className="text-muted-foreground text-sm mt-5 leading-relaxed">
+            <ReactMarkdown
+              remarkPlugins={[remarkBreaks]}
+              components={{
+                ul: ({ children }) => (
+                  <ul className="list-disc ps-5 space-y-2 my-2 marker:text-cyan-brand">
+                    {children}
+                  </ul>
+                ),
+                ol: ({ children }) => (
+                  <ol className="list-decimal ps-5 space-y-2 my-2 marker:text-cyan-brand">
+                    {children}
+                  </ol>
+                ),
+                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                strong: ({ children }) => (
+                  <strong className="font-semibold text-navy">{children}</strong>
+                ),
+              }}
+            >
+              {descriptionText}
+            </ReactMarkdown>
+          </div>
 
           {safeColors.length > 0 && (
             <div className="mt-6">

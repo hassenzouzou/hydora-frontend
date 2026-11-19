@@ -16,6 +16,12 @@ interface StrapiEntity {
   [key: string]: unknown;
 }
 
+export interface SizeVariant {
+  id?: number;
+  size_name: string;
+  price: number;
+}
+
 // ✅ 2. تحديث واجهة المنتج واستخدام StrapiEntity و unknown بدلاً من any
 export interface Product {
   id: string | number;
@@ -28,7 +34,7 @@ export interface Product {
   category?: { name?: string; slug?: string; [key: string]: unknown } | string;
   categorySlug?: string;
   colors?: (string | StrapiEntity)[];
-  sizes?: (string | StrapiEntity)[];
+  size_variants?: SizeVariant[];
   [key: string]: unknown;
 }
 
@@ -92,6 +98,8 @@ export function ProductCard({ product }: { product: Product }) {
     ? getStrapiMedia(rawImageUrl)
     : "https://placehold.co/600x600/e2e8f0/1e293b?text=No+Image";
 
+  const firstVariant = product.size_variants?.[0];
+  const displayPrice = firstVariant?.price ?? product.price;
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!isAvailable) return;
@@ -103,17 +111,12 @@ export function ProductCard({ product }: { product: Product }) {
         : firstColor.color_name || firstColor.name || "الافتراضي"
       : "الافتراضي";
 
-    const firstSize = product.sizes?.[0];
-    const safeSize = firstSize
-      ? typeof firstSize === "string"
-        ? firstSize
-        : firstSize.size_name || firstSize.name || "الافتراضي"
-      : "الافتراضي";
+    const safeSize = firstVariant?.size_name || "الافتراضي";
 
     setPendingItem({
       productId: Number(product.id),
       name: product.name,
-      price: product.price,
+      price: displayPrice,
       image: fullImageUrl,
       quantity: 1,
       color: safeColor,
@@ -162,7 +165,7 @@ export function ProductCard({ product }: { product: Product }) {
         <h3 className="text-navy font-semibold text-[15px] line-clamp-2 leading-snug min-h-10.5">
           {product.name}
         </h3>
-        <div className="text-navy font-bold text-lg mt-auto">{formatPrice(product.price)}</div>
+        <div className="text-navy font-bold text-lg mt-auto">{formatPrice(displayPrice)}</div>
       </div>
 
       <button

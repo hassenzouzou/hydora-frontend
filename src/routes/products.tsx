@@ -64,6 +64,14 @@ export const Route = createFileRoute("/products")({
   component: ProductsPage,
 });
 
+function getProductSizes(p: Product): string[] {
+  return (p.size_variants || []).map((v) => v.size_name).filter(Boolean);
+}
+
+function getProductDisplayPrice(p: Product): number {
+  return p.size_variants?.[0]?.price ?? p.price;
+}
+
 function ProductsPage() {
   const { category, search: initialSearch } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -107,16 +115,7 @@ function ProductsPage() {
     const sizesSet = new Set<string>();
 
     products.forEach((p: Product) => {
-      // ✅ التعديل 2: استخدام unknown كجسر أمان
-      const safeSizes = (p.sizes as unknown as StrapiEntity[]) || [];
-      safeSizes.forEach((s: StrapiEntity | string) => {
-        if (typeof s === "string") {
-          sizesSet.add(s);
-        } else {
-          const sizeName = s?.size_name || s?.name || s?.attributes?.name;
-          if (sizeName) sizesSet.add(sizeName);
-        }
-      });
+      getProductSizes(p).forEach((sizeName) => sizesSet.add(sizeName));
     });
 
     return Array.from(sizesSet);
@@ -142,11 +141,8 @@ function ProductsPage() {
 
     if (selectedSizes.length) {
       list = list.filter((p) => {
-        const safeProductSizes = ((p.sizes as unknown as StrapiEntity[]) || []).map(
-          (s: StrapiEntity | string) =>
-            typeof s === "string" ? s : s?.size_name || s?.name || s?.attributes?.name,
-        );
-        return safeProductSizes.some((s) => s && selectedSizes.includes(s));
+        const productSizes = getProductSizes(p);
+        return productSizes.some((s) => selectedSizes.includes(s));
       });
     }
 
@@ -164,8 +160,12 @@ function ProductsPage() {
       list = list.filter((p) => (p.is_available ?? true) === true);
     }
 
-    if (sort === "price_asc") list.sort((a, b) => a.price - b.price);
-    if (sort === "price_desc") list.sort((a, b) => b.price - a.price);
+    if (sort === "price_asc") {
+      list.sort((a, b) => getProductDisplayPrice(a) - getProductDisplayPrice(b));
+    }
+    if (sort === "price_desc") {
+      list.sort((a, b) => getProductDisplayPrice(b) - getProductDisplayPrice(a));
+    }
 
     return list;
   }, [products, category, searchQ, selectedSizes, selectedColors, onlyAvailable, sort]);

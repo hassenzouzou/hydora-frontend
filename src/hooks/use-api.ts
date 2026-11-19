@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCategories, getProducts, getProduct, getColors, getSizes } from "../services/api";
+import { getCategories, getProducts, getColors } from "../services/api";
 
 // ✅ 1. إنشاء واجهة تصف شكل المنتج القادم من Strapi للتخلص من any
 interface StrapiProduct {
@@ -57,16 +57,6 @@ export const useColors = () => {
     queryKey: ["colors"],
     queryFn: async () => {
       const response = await getColors();
-      return response.data;
-    },
-  });
-};
-
-export const useSizes = () => {
-  return useQuery({
-    queryKey: ["sizes"],
-    queryFn: async () => {
-      const response = await getSizes();
       return response.data;
     },
   });
