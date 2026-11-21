@@ -36,8 +36,8 @@ const contactCards = [
   {
     icon: Phone,
     title: "الهاتف و واتساب",
-    lines: ["+213 779 460 214"],
-    action: { label: "اتصل الآن", href: "tel:+213779460214" },
+    lines: ["+213 550 92 45 09"],
+    action: { label: "اتصل الآن", href: "tel:+213550924509" },
   },
   {
     icon: Mail,
@@ -95,12 +95,12 @@ function ContactPage() {
 
           {/* Quick actions */}
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <a href="tel:+213779460214" className="btn-primary" aria-label="اتصل بنا">
+            <a href="tel:+213550924509" className="btn-primary" aria-label="اتصل بنا">
               <Phone className="h-4 w-4" />
               اتصل بنا الآن
             </a>
             <a
-              href="https://wa.me/213779460214"
+              href="https://wa.me/213550924509"
               target="_blank"
               rel="noreferrer"
               className="btn-cyan"
